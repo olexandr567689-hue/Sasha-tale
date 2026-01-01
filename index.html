@@ -3,103 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Undertale Sasha - Fixed Edition</title>
+    <title>Undertale Sasha - Hard Mode</title>
     <style>
         :root { --ut-red: #ff0000; --ut-yellow: #ffff00; --ut-green: #00ff00; --ut-blue: #4deeea; }
-        body {
-            background-color: #000; color: #fff; margin: 0;
-            font-family: 'Courier New', Courier, monospace;
-            display: flex; flex-direction: column; align-items: center;
-            height: 100vh; overflow: hidden; touch-action: none;
-        }
-
-        #start-screen, #name-screen, #leaderboard-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 100; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; text-align: center;
-        }
-
-        #btn-z-start {
-            width: 80px; height: 80px; background: #222; border: 4px solid var(--ut-yellow); 
-            color: var(--ut-yellow); border-radius: 50%; font-size: 30px; font-weight: bold; 
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
-        }
-
-        input { background: #000; border: 2px solid #fff; color: #fff; padding: 10px; font-family: inherit; font-size: 20px; text-align: center; margin-bottom: 20px; }
+        body { background: #000; color: #fff; margin: 0; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; touch-action: none; }
         
-        #boss-area { position: relative; margin-top: 50px; height: 120px; display: flex; flex-direction: column; align-items: center; opacity: 0; }
-        #enemy-sprite { font-size: 60px; position: relative; }
+        #screen-wrap { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         
-        /* HP БОСА ТЕПЕР ВИДИМЕ */
-        #boss-hp-container { margin-top: 10px; display: flex; flex-direction: column; align-items: center; }
-        #boss-hp-bg { width: 120px; height: 12px; background: #444; border: 2px solid #fff; position: relative; }
-        #boss-hp-fg { position: absolute; left: 0; top: 0; height: 100%; background: var(--ut-green); width: 100%; transition: width 0.3s; }
-        #dmg-num { position: absolute; top: -30px; color: red; font-size: 20px; font-weight: bold; display: none; }
+        /* Екрани */
+        .overlay { position: fixed; inset: 0; background: #000; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        
+        #btn-z-start { width: 100px; height: 100px; border: 5px solid var(--ut-yellow); color: var(--ut-yellow); border-radius: 50%; font-size: 40px; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-top: 20px; box-shadow: 0 0 20px var(--ut-yellow); }
 
-        #battle-screen { position: relative; border: 5px solid #fff; width: 280px; height: 140px; background: #000; display: flex; justify-content: center; align-items: center; opacity: 0; }
-        #heart { position: absolute; width: 14px; height: 14px; background: var(--ut-red); display: none; z-index: 10; border-radius: 2px; }
+        /* Бос */
+        #boss-area { margin-top: 20px; height: 140px; display: flex; flex-direction: column; align-items: center; opacity: 0; }
+        #enemy-sprite { font-size: 70px; }
+        #boss-hp-bg { width: 140px; height: 15px; background: #444; border: 2px solid #fff; position: relative; margin-top: 10px; }
+        #boss-hp-fg { position: absolute; left: 0; top: 0; height: 100%; background: var(--ut-green); width: 100%; }
 
-        #stats-area { width: 280px; margin-top: 10px; opacity: 0; font-size: 14px; }
-        #menu { display: flex; gap: 4px; width: 310px; margin-top: 10px; opacity: 0; }
-        .btn-m { flex: 1; border: 2px solid orange; color: orange; text-align: center; padding: 8px 0; font-size: 10px; font-weight: bold; }
-        .btn-m.active { border-color: var(--ut-yellow); color: var(--ut-yellow); background: #332200; }
+        /* Поле бою */
+        #battle-screen { position: relative; border: 5px solid #fff; width: 300px; height: 160px; background: #000; overflow: hidden; opacity: 0; margin-top: 10px; }
+        #heart { position: absolute; width: 16px; height: 16px; background: var(--ut-red); display: none; z-index: 10; }
+        #dialog { padding: 15px; font-size: 16px; line-height: 1.4; }
 
-        #controls { display: flex; width: 100%; justify-content: space-around; align-items: center; margin-top: auto; padding-bottom: 20px; opacity: 0; }
-        .d-pad { display: grid; grid-template-columns: repeat(3, 55px); gap: 5px; }
-        .d-btn { background: #222; border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; border-radius: 8px; height: 55px; }
-        #btn-z { width: 80px; height: 80px; background: #222; border: 4px solid var(--ut-yellow); color: var(--ut-yellow); border-radius: 50%; font-size: 28px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+        /* Статистика */
+        #stats { width: 300px; margin-top: 10px; font-weight: bold; opacity: 0; }
+        .mana-bar { width: 100%; height: 8px; border: 1px solid var(--ut-blue); margin-top: 5px; }
+        #mana-fg { height: 100%; background: var(--ut-blue); width: 0%; transition: 0.2s; }
 
-        .bullet { position: absolute; background: #fff; border-radius: 50%; width: 8px; height: 8px; }
-        table { width: 80%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
-        th, td { border: 1px solid #fff; padding: 5px; }
+        /* Меню */
+        #menu { display: flex; gap: 5px; width: 320px; margin-top: 10px; opacity: 0; }
+        .btn-m { flex: 1; border: 2px solid orange; color: orange; padding: 10px 0; font-size: 12px; text-align: center; }
+        .btn-m.active { background: #332200; color: var(--ut-yellow); border-color: var(--ut-yellow); }
+
+        /* Керування */
+        #controls { margin-top: auto; padding-bottom: 20px; display: flex; width: 100%; justify-content: space-around; align-items: center; opacity: 0; }
+        .d-pad { display: grid; grid-template-columns: repeat(3, 60px); gap: 5px; }
+        .d-btn { background: #222; border: 2px solid #fff; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 24px; border-radius: 10px; }
+        #btn-z { width: 90px; height: 90px; background: #222; border: 4px solid var(--ut-yellow); color: var(--ut-yellow); border-radius: 50%; font-size: 32px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+
+        .tear { position: absolute; background: #fff; width: 6px; height: 10px; border-radius: 0 0 50% 50%; }
+        table { width: 90%; border: 1px solid #fff; margin-top: 10px; border-collapse: collapse; }
+        th, td { border: 1px solid #fff; padding: 8px; }
     </style>
 </head>
 <body>
 
-    <div id="start-screen">
-        <h1 style="color:var(--ut-yellow)">UNDERTALE</h1>
+    <div id="start-screen" class="overlay">
+        <h1 style="color:var(--ut-yellow); font-size: 40px;">HARD MODE</h1>
         <div id="btn-z-start">Z</div>
-        <p>Натисніть Z</p>
+        <p>НАТИСНИ Z ДЛЯ МУЗИКИ ТА СТАРТУ</p>
     </div>
 
-    <div id="name-screen" style="display:none;">
+    <div id="name-screen" class="overlay" style="display:none;">
         <h2>ЯК ТЕБЕ ЗВАТИ?</h2>
-        <input type="text" id="player-name-input" maxlength="8">
-        <div id="btn-confirm-name" style="border:2px solid #fff; padding:10px;">OK</div>
+        <input type="text" id="p-name" maxlength="8" style="background:#000; color:#fff; border:2px solid #fff; padding:10px; font-size:20px; text-align:center;">
+        <div id="btn-ok" style="margin-top:20px; border:2px solid #fff; padding:10px 40px; cursor:pointer;">OK</div>
     </div>
 
-    <div id="leaderboard-screen" style="display:none;">
-        <h2 style="color:var(--ut-green)">РЕКОРДИ</h2>
-        <table id="leader-table"></table>
-        <button onclick="location.reload()" style="margin-top:20px;">ЗАНОВО</button>
+    <div id="win-screen" class="overlay" style="display:none;">
+        <h2 id="win-msg" style="color:var(--ut-green)">ПЕРЕМОГА!</h2>
+        <p id="your-time"></p>
+        <table id="score-table"></table>
+        <button onclick="location.reload()" style="margin-top:20px; padding:10px;">ГРАТИ ЗНОВУ</button>
     </div>
 
     <div id="boss-area">
         <div id="enemy-sprite">👻</div>
-        <div id="boss-hp-container">
-            <div id="dmg-num">0</div>
-            <div id="boss-hp-bg"><div id="boss-hp-fg"></div></div>
-        </div>
+        <div id="boss-hp-bg"><div id="boss-hp-fg"></div></div>
     </div>
 
     <div id="battle-screen">
         <div id="heart"></div>
-        <div id="dialog">* Напстаблук не знає, що робити.</div>
-        <div id="attack-bar" style="position:absolute; width:220px; height:100px; border:3px solid #fff; display:none;">
-            <div id="slider" style="position:absolute; left:0; top:0; width:10px; height:100%; background:#fff;"></div>
+        <div id="dialog">* Напстаблук виглядає серйозним.</div>
+        <div id="attack-bar" style="position:absolute; inset:20px; border:3px solid #fff; display:none;">
+            <div id="slider" style="position:absolute; left:0; top:0; width:15px; height:100%; background:#fff; box-shadow:0 0 10px #fff;"></div>
         </div>
     </div>
 
-    <div id="stats-area">
-        <span id="display-name">SASHA</span> HP <span id="hp-val">20/20</span>
-        <div style="width:100px; height:10px; border:1px solid var(--ut-blue); margin-top:5px;"><div id="mana-fg" style="width:0%; height:100%; background:var(--ut-blue);"></div></div>
+    <div id="stats">
+        <span id="stat-name">SASHA</span> LV 19 HP <span id="hp-text">20/20</span>
+        <div class="mana-bar"><div id="mana-fg"></div></div>
     </div>
 
     <div id="menu">
-        <div class="btn-m active" id="m0">БИТВА</div>
-        <div class="btn-m" id="m1">ДІЯ</div>
-        <div class="btn-m" id="m2">МАНА</div>
-        <div class="btn-m" id="m3">ПОЩАДА</div>
+        <div class="btn-m active" id="m0">FIGHT</div>
+        <div class="btn-m" id="m1">ACT</div>
+        <div class="btn-m" id="m2">ITEM</div>
+        <div class="btn-m" id="m3">MERCY</div>
     </div>
 
     <div id="controls">
@@ -114,31 +105,48 @@
 
     <script>
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        let phase = 'START', playerName = "SASHA", startTime, hasActed = false;
-        let hp = 20, enemyHp = 400, mana = 0, menuIdx = 0, sPos = 0, sDir = 1;
-        let px = 130, py = 70;
+        let phase = 'START', playerName = "SASHA", startTime, actCount = 0;
+        let hp = 20, enemyHp = 600, mana = 0, menuIdx = 0, sPos = 0, sDir = 1;
+        let px = 140, py = 70;
         const keys = { up: false, down: false, left: false, right: false };
 
-        function playNote(f, d) {
-            const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
-            o.frequency.value = f; g.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + d);
-            o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + d);
+        function playMegalovania() {
+            const notes = [
+                293, 293, 587, 440, 0, 415, 0, 392, 0, 349, 293, 349, 392,
+                261, 261, 587, 440, 0, 415, 0, 392, 0, 349, 293, 349, 392,
+                247, 247, 587, 440, 0, 415, 0, 392, 0, 349, 293, 349, 392,
+                233, 233, 587, 440, 0, 415, 0, 392, 0, 349, 293, 349, 392
+            ];
+            let i = 0;
+            setInterval(() => {
+                if (notes[i % notes.length] > 0) {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'square';
+                    osc.frequency.value = notes[i % notes.length];
+                    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1);
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+                }
+                i++;
+            }, 125);
         }
 
         document.getElementById('btn-z-start').onclick = () => {
             if (audioCtx.state === 'suspended') audioCtx.resume();
+            playMegalovania();
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('name-screen').style.display = 'flex';
-            phase = 'NAME';
         };
 
-        document.getElementById('btn-confirm-name').onclick = () => {
-            playerName = document.getElementById('player-name-input').value.toUpperCase() || "SASHA";
-            document.getElementById('display-name').innerText = playerName;
+        document.getElementById('btn-ok').onclick = () => {
+            playerName = document.getElementById('p-name').value.toUpperCase() || "SASHA";
+            document.getElementById('stat-name').innerText = playerName;
             document.getElementById('name-screen').style.display = 'none';
             phase = 'MENU';
             startTime = Date.now();
-            ['boss-area', 'battle-screen', 'stats-area', 'menu', 'controls'].forEach(id => document.getElementById(id).style.opacity = '1');
+            ['boss-area', 'battle-screen', 'stats', 'menu', 'controls'].forEach(id => document.getElementById(id).style.opacity = '1');
         };
 
         const setupBtn = (id) => {
@@ -149,100 +157,117 @@
         ['up','down','left','right','btn-z'].forEach(setupBtn);
 
         function pressZ() {
-            if (phase !== 'MENU' && phase !== 'ATTACK') return;
-            
             if (phase === 'MENU') {
-                if (menuIdx === 0) { // БИТВА
+                if (menuIdx === 0) {
                     phase = 'ATTACK';
                     document.getElementById('dialog').style.display = 'none';
                     document.getElementById('attack-bar').style.display = 'block';
                     sPos = 0;
-                } else if (menuIdx === 1) { // ДІЯ
-                    hasActed = true;
-                    document.getElementById('dialog').innerText = "* Ти сказав привиду, що він крутий. Він зашарівся.";
+                } else if (menuIdx === 1) {
+                    actCount++;
+                    document.getElementById('dialog').innerText = "* Ти сказав Напстаблуку, що він виглядає як справжня зірка!";
                     phase = 'BUSY'; setTimeout(enemyTurn, 1500);
-                } else if (menuIdx === 2) { // МАНА
-                    if (mana >= 100) { mana = 0; hp = Math.min(20, hp+5); updateUI(); document.getElementById('dialog').innerText = "* Мана вилікувала тебе!"; phase = 'BUSY'; setTimeout(enemyTurn, 1000); }
-                } else if (menuIdx === 3) { // ПОЩАДА
-                    if (hasActed) { win('SPARE'); } else { document.getElementById('dialog').innerText = "* Напстаблук ще сумує."; phase = 'BUSY'; setTimeout(enemyTurn, 1000); }
+                } else if (menuIdx === 2) {
+                    if (mana >= 100) { hp = 20; mana = 0; updateUI(); document.getElementById('dialog').innerText = "* Повний хіл!"; phase = 'BUSY'; setTimeout(enemyTurn, 1000); }
+                } else if (menuIdx === 3) {
+                    if (actCount >= 3) win('MERCY');
+                    else { document.getElementById('dialog').innerText = "* Він ще не хоче йти..."; phase = 'BUSY'; setTimeout(enemyTurn, 1000); }
                 }
             } else if (phase === 'ATTACK') {
-                const dmg = Math.abs(sPos - 110) < 20 ? 100 : 40;
+                const dmg = Math.abs(sPos - 130) < 25 ? 120 : 50;
                 enemyHp = Math.max(0, enemyHp - dmg);
-                document.getElementById('boss-hp-fg').style.width = (enemyHp/400*100) + '%';
-                document.getElementById('dmg-num').innerText = dmg;
-                document.getElementById('dmg-num').style.display = 'block';
+                document.getElementById('boss-hp-fg').style.width = (enemyHp/600*100) + '%';
                 phase = 'BUSY';
                 document.getElementById('attack-bar').style.display = 'none';
-                setTimeout(() => {
-                    document.getElementById('dmg-num').style.display = 'none';
-                    document.getElementById('dialog').style.display = 'block';
-                    if (enemyHp <= 0) win('KILL'); else enemyTurn();
-                }, 1000);
+                document.getElementById('dialog').style.display = 'block';
+                document.getElementById('dialog').innerText = "* Нанесено " + dmg + " шкоди!";
+                setTimeout(() => { if (enemyHp <= 0) win('KILL'); else enemyTurn(); }, 1000);
             }
         }
 
         function enemyTurn() {
-            phase = 'DODGE'; document.getElementById('dialog').style.display = 'none';
-            document.getElementById('heart').style.display = 'block'; px = 130; py = 60;
-            let t = 60;
-            const iv = setInterval(() => {
-                if (t % 10 === 0) spawnBullet();
-                if (--t <= 0 || hp <= 0) { 
-                    clearInterval(iv); 
-                    if (hp > 0) { phase = 'MENU'; document.getElementById('heart').style.display = 'none'; document.getElementById('dialog').style.display = 'block'; document.getElementById('dialog').innerText = "* Твій хід."; }
-                    else location.reload();
+            phase = 'DODGE';
+            document.getElementById('dialog').style.display = 'none';
+            document.getElementById('heart').style.display = 'block';
+            px = 140; py = 70;
+            let time = 70;
+            const attackInterval = setInterval(() => {
+                spawnTear();
+                if (--time <= 0 || hp <= 0) {
+                    clearInterval(attackInterval);
+                    if (hp > 0) {
+                        phase = 'MENU';
+                        document.getElementById('heart').style.display = 'none';
+                        document.getElementById('dialog').style.display = 'block';
+                        document.getElementById('dialog').innerText = "* Його атаки стають сильнішими.";
+                    } else { location.reload(); }
                 }
-            }, 100);
+            }, 80);
         }
 
-        function spawnBullet() {
-            const b = document.createElement('div'); b.className = 'bullet';
-            document.getElementById('battle-screen').appendChild(b);
-            let bx = Math.random()*260, by = -10;
+        function spawnTear() {
+            const t = document.createElement('div');
+            t.className = 'tear';
+            document.getElementById('battle-screen').appendChild(t);
+            let tx = Math.random() * 280, ty = -10;
+            let speed = 4 + Math.random() * 4; // Швидкі атаки
             const m = setInterval(() => {
-                by += 4; b.style.left = bx + 'px'; b.style.top = by + 'px';
-                const hr = heart.getBoundingClientRect(), br = b.getBoundingClientRect();
-                if (Math.hypot(hr.left-br.left, hr.top-br.top) < 35) { mana = Math.min(100, mana+2); updateUI(); }
-                if (!(br.left > hr.right || br.right < hr.left || br.top > hr.bottom || br.bottom < hr.top)) { hp--; updateUI(); b.remove(); clearInterval(m); }
-                if (by > 140 || phase !== 'DODGE') { b.remove(); clearInterval(m); }
-            }, 30);
+                ty += speed;
+                t.style.left = tx + 'px'; t.style.top = ty + 'px';
+                const hr = heart.getBoundingClientRect(), tr = t.getBoundingClientRect();
+                if (Math.hypot(hr.left-tr.left, hr.top-tr.top) < 40) { mana = Math.min(100, mana + 1.5); updateUI(); }
+                if (!(tr.left > hr.right || tr.right < hr.left || tr.top > hr.bottom || tr.bottom < hr.top)) {
+                    hp--; updateUI(); t.remove(); clearInterval(m);
+                }
+                if (ty > 160 || phase !== 'DODGE') { t.remove(); clearInterval(m); }
+            }, 25);
         }
 
         function updateUI() {
-            document.getElementById('hp-val').innerText = hp + "/20";
+            document.getElementById('hp-text').innerText = hp + "/20";
             document.getElementById('mana-fg').style.width = mana + "%";
         }
 
         function win(type) {
             phase = 'WIN';
-            const time = ((Date.now() - startTime) / 1000).toFixed(2);
-            if (type === 'KILL') {
-                let s = JSON.parse(localStorage.getItem('ut_s') || '[]');
-                s.push({n: playerName, t: time}); s.sort((a,b) => a.t - b.t);
-                localStorage.setItem('ut_s', JSON.stringify(s.slice(0, 5)));
-            }
-            const table = document.getElementById('leader-table');
+            const finalTime = ((Date.now() - startTime) / 1000).toFixed(2);
+            document.getElementById('win-msg').innerText = type === 'MERCY' ? "ПОЩАДА!" : "БОС ПЕРЕМОЖЕНИЙ!";
+            document.getElementById('your-time').innerText = "Твій час: " + finalTime + "с";
+            
+            // Таблиця лідерів
+            let scores = JSON.parse(localStorage.getItem('ut_v3_scores') || '[]');
+            scores.push({name: playerName, time: parseFloat(finalTime)});
+            scores.sort((a,b) => a.time - b.time);
+            scores = scores.slice(0, 5);
+            localStorage.setItem('ut_v3_scores', JSON.stringify(scores));
+
+            const table = document.getElementById('score-table');
             table.innerHTML = '<tr><th>ІМ\'Я</th><th>ЧАС</th></tr>';
-            JSON.parse(localStorage.getItem('ut_s') || '[]').forEach(i => table.innerHTML += `<tr><td>${i.n}</td><td>${i.t}с</td></tr>`);
-            document.getElementById('leaderboard-screen').style.display = 'flex';
+            scores.forEach(s => {
+                table.innerHTML += `<tr><td>${s.name}</td><td>${s.time}с</td></tr>`;
+            });
+            document.getElementById('win-screen').style.display = 'flex';
         }
 
-        function main() {
+        function loop() {
             if (phase === 'MENU') {
                 if (keys.left) { menuIdx = (menuIdx + 3) % 4; keys.left = false; }
                 if (keys.right) { menuIdx = (menuIdx + 1) % 4; keys.right = false; }
                 [0,1,2,3].forEach(i => document.getElementById('m'+i).classList.toggle('active', i === menuIdx));
             }
             if (phase === 'DODGE') {
-                if (keys.up && py > 5) py -= 4; if (keys.down && py < 120) py += 4;
-                if (keys.left && px > 5) px -= 4; if (keys.right && px < 260) px += 4;
+                if (keys.up && py > 5) py -= 5; if (keys.down && py < 140) py += 5;
+                if (keys.left && px > 5) px -= 5; if (keys.right && px < 280) px += 5;
                 heart.style.left = px + 'px'; heart.style.top = py + 'px';
             }
-            if (phase === 'ATTACK') { sPos += (6 * sDir); if (sPos > 210 || sPos < 0) sDir *= -1; document.getElementById('slider').style.left = sPos + 'px'; }
-            requestAnimationFrame(main);
+            if (phase === 'ATTACK') {
+                sPos += (8 * sDir);
+                if (sPos > 260 || sPos < 0) sDir *= -1;
+                document.getElementById('slider').style.left = sPos + 'px';
+            }
+            requestAnimationFrame(loop);
         }
-        main();
+        loop();
     </script>
 </body>
 </html>
