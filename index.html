@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Undertale Sasha - Z Start Edition</title>
+    <title>Undertale Sasha - Full Boss Edition</title>
     <style>
         :root { --ut-red: #ff0000; --ut-yellow: #ffff00; --ut-green: #00ff00; --ut-blue: #4deeea; }
         body {
@@ -20,84 +20,86 @@
             justify-content: center; align-items: center; text-align: center;
         }
 
-        /* СТИЛІЗОВАНА КНОПКА Z НА ПОЧАТКУ */
         #btn-z-start {
-            width: 100px; height: 100px; background: #222; 
-            border: 5px solid var(--ut-yellow); color: var(--ut-yellow); 
-            border-radius: 50%; font-size: 40px; font-weight: bold; 
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; margin-top: 30px; box-shadow: 0 0 15px var(--ut-yellow);
+            width: 100px; height: 100px; background: #222; border: 5px solid var(--ut-yellow); 
+            color: var(--ut-yellow); border-radius: 50%; font-size: 40px; font-weight: bold; 
+            display: flex; align-items: center; justify-content: center; cursor: pointer; margin-top: 30px;
         }
-        #btn-z-start:active { transform: scale(0.9); background: #332200; }
 
         input { background: #000; border: 2px solid #fff; color: #fff; padding: 10px; font-family: inherit; font-size: 20px; text-align: center; outline: none; margin-bottom: 20px; }
         
-        .title { font-size: 32px; color: #fff; text-shadow: 2px 2px var(--ut-red); letter-spacing: 2px; }
-        .hint { color: #888; margin-top: 10px; font-size: 14px; }
+        /* БОС ТА ЙОГО HP */
+        #boss-area { position: relative; margin-top: 60px; height: 120px; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: 1s; }
+        #enemy-sprite { font-size: 60px; position: relative; transition: 0.1s; }
+        
+        #boss-hp-container { position: absolute; top: -50px; display: none; flex-direction: column; align-items: center; width: 140px; }
+        #boss-hp-bg { width: 120px; height: 14px; background: #444; border: 2px solid #000; position: relative; overflow: hidden; }
+        #boss-hp-fg { position: absolute; left: 0; top: 0; height: 100%; background: var(--ut-green); width: 100%; z-index: 2; }
+        #boss-hp-break { position: absolute; right: 0; top: 0; height: 100%; background: red; width: 0%; transition: width 0.4s ease-out; z-index: 1; }
+        #dmg-num { color: red; font-size: 26px; font-weight: bold; -webkit-text-stroke: 1px white; margin-bottom: 5px; }
 
-        /* ІГРОВІ ЕЛЕМЕНТИ (ПРИХОВАНІ ДО СТАРТУ) */
-        #boss-area, #battle-screen, #stats-area, #menu, #controls { opacity: 0; transition: 1s; }
-
-        #enemy-sprite { font-size: 60px; position: relative; }
-        #boss-hp-container { position: absolute; top: -50px; display: none; flex-direction: column; align-items: center; width: 120px; }
-        #boss-hp-bg { width: 100px; height: 12px; background: #444; border: 2px solid #000; position: relative; }
-        #boss-hp-fg { position: absolute; left: 0; top: 0; height: 100%; background: var(--ut-green); width: 100%; }
-        #boss-hp-break { position: absolute; right: 0; top: 0; height: 100%; background: red; width: 0%; transition: width 0.4s; }
-
-        #battle-screen { position: relative; border: 5px solid #fff; width: 280px; height: 160px; background: #000; display: flex; justify-content: center; align-items: center; }
+        /* ІНТЕРФЕЙС */
+        #battle-screen { position: relative; border: 5px solid #fff; width: 280px; height: 160px; background: #000; display: flex; justify-content: center; align-items: center; opacity: 0; transition: 1s; }
         #heart { position: absolute; width: 14px; height: 14px; background: var(--ut-red); display: none; z-index: 10; border-radius: 2px; }
 
-        #menu { display: flex; gap: 4px; width: 310px; margin-top: 10px; }
+        #stats-area { width: 280px; margin-top: 10px; opacity: 0; transition: 1s; }
+        #menu { display: flex; gap: 4px; width: 310px; margin-top: 10px; opacity: 0; transition: 1s; }
         .btn-m { flex: 1; border: 2px solid orange; color: orange; text-align: center; padding: 8px 0; font-size: 10px; font-weight: bold; }
         .btn-m.active { border-color: var(--ut-yellow); color: var(--ut-yellow); background: #332200; }
 
-        #controls { display: flex; width: 100%; justify-content: space-around; align-items: center; margin-top: auto; padding-bottom: 20px; }
+        #controls { display: flex; width: 100%; justify-content: space-around; align-items: center; margin-top: auto; padding-bottom: 20px; opacity: 0; transition: 1s; }
         .d-pad { display: grid; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(3, 60px); gap: 5px; }
         .d-btn { background: #222; border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; border-radius: 8px; }
         #btn-z { width: 85px; height: 85px; background: #222; border: 4px solid var(--ut-yellow); color: var(--ut-yellow); border-radius: 50%; font-size: 32px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
 
         .bullet { position: absolute; background: #fff; border-radius: 50%; width: 8px; height: 8px; }
-        table { width: 80%; border-collapse: collapse; margin-top: 15px; }
+        @keyframes shake { 0% { transform: translate(2px, 2px); } 50% { transform: translate(-2px, -2px); } 100% { transform: translate(0, 0); } }
+        .shaking { animation: shake 0.1s infinite; }
+
+        table { width: 85%; border-collapse: collapse; margin-top: 15px; }
         th, td { border: 1px solid #fff; padding: 8px; font-size: 14px; }
     </style>
 </head>
 <body>
 
     <div id="start-screen">
-        <h1 class="title">UNDERTALE SASHA</h1>
+        <h1 style="color:var(--ut-yellow)">UNDERTALE</h1>
         <div id="btn-z-start">Z</div>
-        <p class="hint">Натисни Z щоб почати</p>
+        <p>Натисни Z щоб почати</p>
     </div>
 
     <div id="name-screen" style="display:none;">
-        <h2 style="color:var(--ut-yellow)">ЯК ТЕБЕ ЗВАТИ?</h2>
-        <input type="text" id="player-name-input" maxlength="8" placeholder="ВВЕДІТЬ ІМ'Я">
-        <div id="btn-confirm-name" style="border:2px solid #fff; padding:10px 30px; cursor:pointer; font-weight:bold;">OK</div>
+        <h2 style="color:var(--ut-yellow)">ТВОЄ ІМ'Я?</h2>
+        <input type="text" id="player-name-input" maxlength="8" placeholder="ВВЕДІТЬ">
+        <div id="btn-confirm-name" style="border:2px solid #fff; padding:10px 30px; cursor:pointer;">ГОТОВО</div>
     </div>
 
     <div id="leaderboard-screen" style="display:none;">
-        <h2 style="color:var(--ut-green)">РЕКОРДИ ПЕРЕМОГИ</h2>
+        <h2 style="color:var(--ut-green)">РЕКОРДИ</h2>
         <table id="leader-table"></table>
-        <button onclick="location.reload()" style="margin-top:20px; padding:10px; background:#000; color:#fff; border:1px solid #fff;">ЩЕ РАЗ</button>
+        <button onclick="location.reload()" style="margin-top:20px; padding:10px; background:#000; color:#fff; border:1px solid #fff;">ЗАНОВО</button>
     </div>
 
-    <div id="boss-area" style="margin-top:50px;">
+    <div id="boss-area">
         <div id="boss-hp-container">
-            <div id="dmg-num" style="color:red; font-size:20px;">0</div>
-            <div id="boss-hp-bg"><div id="boss-hp-break"></div><div id="boss-hp-fg"></div></div>
+            <div id="dmg-num">0</div>
+            <div id="boss-hp-bg">
+                <div id="boss-hp-break"></div>
+                <div id="boss-hp-fg"></div>
+            </div>
         </div>
         <div id="enemy-sprite">👻</div>
     </div>
 
     <div id="battle-screen">
         <div id="heart"></div>
-        <div id="dialog">* Відчуваєш рішучість...</div>
+        <div id="dialog">* Напстаблук чекає...</div>
         <div id="attack-bar" style="position:absolute; width:240px; height:120px; border:4px solid #fff; display:none; background:#000; z-index:50;">
             <div id="slider" style="position:absolute; left:0; top:0; width:12px; height:100%; background:#fff; box-shadow: 0 0 10px #fff;"></div>
         </div>
     </div>
 
-    <div id="stats-area" style="width:280px; margin-top:10px;">
+    <div id="stats-area">
         <div style="display:flex; align-items:center; gap:10px;">
             <span id="display-name" style="font-size:14px;">SASHA</span>
             <div style="width:60px; height:14px; background:red; position:relative;"><div id="player-hp-fg" style="width:100%; height:100%; background:yellow;"></div></div>
@@ -129,7 +131,7 @@
     <script>
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let musicStarted = false, phase = 'START', playerName = "SASHA", startTime;
-        let hp = 20, enemyHp = 400, mana = 0, menuIdx = 0, sPos = 0, sDir = 1;
+        let hp = 20, enemyMaxHp = 400, enemyHp = 400, mana = 0, menuIdx = 0, sPos = 0, sDir = 1;
         let px = 130, py = 70;
         const keys = { up: false, down: false, left: false, right: false };
 
@@ -148,7 +150,6 @@
             let i = 0; setInterval(() => { playNote(m[i % m.length], 0.15); i++; }, 150);
         }
 
-        // Кнопка Z для активації гри
         document.getElementById('btn-z-start').onclick = () => {
             if (audioCtx.state === 'suspended') audioCtx.resume();
             startMusic();
@@ -157,7 +158,6 @@
             phase = 'NAME';
         };
 
-        // Підтвердження імені
         document.getElementById('btn-confirm-name').onclick = () => {
             const val = document.getElementById('player-name-input').value;
             if (val) playerName = val.toUpperCase();
@@ -167,11 +167,8 @@
         };
 
         function startGame() {
-            phase = 'MENU';
-            startTime = Date.now();
-            ['boss-area', 'battle-screen', 'stats-area', 'menu', 'controls'].forEach(id => {
-                document.getElementById(id).style.opacity = '1';
-            });
+            phase = 'MENU'; startTime = Date.now();
+            ['boss-area', 'battle-screen', 'stats-area', 'menu', 'controls'].forEach(id => document.getElementById(id).style.opacity = '1');
         }
 
         const setupBtn = (id) => {
@@ -190,29 +187,40 @@
             } else if (phase === 'ATTACK') finishAttack();
         }
 
-        function startAttack() {
-            phase = 'ATTACK'; document.getElementById('dialog').style.display = 'none';
-            document.getElementById('attack-bar').style.display = 'block'; sPos = 0;
-        }
+        function startAttack() { phase = 'ATTACK'; document.getElementById('dialog').style.display = 'none'; document.getElementById('attack-bar').style.display = 'block'; sPos = 0; }
 
         function finishAttack() {
             const dmg = Math.abs(sPos - 120) < 25 ? 85 : 35;
-            const prevHp = enemyHp;
+            const prevHpPercent = (enemyHp / enemyMaxHp) * 100;
             enemyHp = Math.max(0, enemyHp - dmg);
+            const currentHpPercent = (enemyHp / enemyMaxHp) * 100;
+            
             phase = 'BUSY';
             document.getElementById('attack-bar').style.display = 'none';
             
             const hpCont = document.getElementById('boss-hp-container');
+            const hpFg = document.getElementById('boss-hp-fg');
+            const hpBrk = document.getElementById('boss-hp-break');
+            const sprite = document.getElementById('enemy-sprite');
+
             document.getElementById('dmg-num').innerText = dmg;
-            document.getElementById('boss-hp-fg').style.width = (enemyHp/400*100) + '%';
-            document.getElementById('boss-hp-break').style.width = ((prevHp - enemyHp)/400*100) + '%';
-            document.getElementById('boss-hp-break').style.left = (enemyHp/400*100) + '%';
+            hpFg.style.width = currentHpPercent + '%';
+            hpBrk.style.width = (prevHpPercent - currentHpPercent) + '%';
+            hpBrk.style.left = currentHpPercent + '%';
+            
             hpCont.style.display = 'flex';
+            hpCont.classList.add('shaking');
+            sprite.classList.add('shaking');
 
             setTimeout(() => {
-                hpCont.style.display = 'none';
-                if (enemyHp <= 0) win(); else enemyTurn();
-            }, 800);
+                hpCont.classList.remove('shaking');
+                sprite.classList.remove('shaking');
+                hpBrk.style.width = '0%';
+                setTimeout(() => {
+                    hpCont.style.display = 'none';
+                    if (enemyHp <= 0) win(); else enemyTurn();
+                }, 500);
+            }, 600);
         }
 
         function enemyTurn() {
@@ -256,8 +264,8 @@
             
             phase = 'WIN';
             const table = document.getElementById('leader-table');
-            table.innerHTML = '<tr><th>ІМ\'Я</th><th>ЧАС (СЕК)</th></tr>';
-            scores.slice(0, 5).forEach(s => table.innerHTML += `<tr><td>${s.name}</td><td>${s.time}</td></tr>`);
+            table.innerHTML = '<tr><th>ІМ\'Я</th><th>ЧАС</th></tr>';
+            scores.slice(0, 5).forEach(s => table.innerHTML += `<tr><td>${s.name}</td><td>${s.time}с</td></tr>`);
             document.getElementById('leaderboard-screen').style.display = 'flex';
         }
 
