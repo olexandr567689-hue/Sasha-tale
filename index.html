@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Undertale Sasha - Leaderboard Edition</title>
+    <title>Undertale Sasha - Final Start Edition</title>
     <style>
         :root { --ut-red: #ff0000; --ut-yellow: #ffff00; --ut-green: #00ff00; --ut-blue: #4deeea; }
         body {
@@ -19,71 +19,67 @@
             background: #000; z-index: 100; display: flex; flex-direction: column;
             justify-content: center; align-items: center; text-align: center;
         }
-        #name-screen, #leaderboard-screen { display: none; }
 
-        input { background: #000; border: 2px solid #fff; color: #fff; padding: 10px; font-family: inherit; font-size: 20px; text-align: center; outline: none; }
-        
-        .title { font-size: 32px; color: var(--ut-yellow); margin-bottom: 20px; }
-        .blink { animation: blinker 1s linear infinite; }
-        @keyframes blinker { 50% { opacity: 0; } }
-
-        /* ІГРОВІ ЕЛЕМЕНТИ */
-        #boss-area { position: relative; margin-top: 40px; height: 120px; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: 1s; }
-        #enemy-sprite { font-size: 60px; transition: transform 0.1s; position: relative; }
-        
-        #boss-hp-container { position: absolute; top: -40px; display: none; flex-direction: column; align-items: center; width: 120px; }
-        #boss-hp-bg { width: 100px; height: 12px; background: #444; border: 2px solid #000; position: relative; }
-        #boss-hp-break { position: absolute; right: 0; top: 0; height: 100%; background: red; width: 0%; transition: width 0.4s ease-out; }
-        #boss-hp-fg { position: absolute; left: 0; top: 0; height: 100%; background: var(--ut-green); width: 100%; }
-
-        #battle-screen {
-            position: relative; border: 5px solid #fff; width: 280px; height: 160px; background: #000;
-            display: flex; justify-content: center; align-items: center; overflow: hidden; opacity: 0; transition: 1s;
+        /* КНОПКА СТАРТУ */
+        #btn-start-game {
+            background: none; border: 4px solid #fff; color: #fff;
+            padding: 20px 40px; font-size: 24px; font-family: inherit;
+            cursor: pointer; margin-top: 30px; transition: 0.2s;
         }
+        #btn-start-game:active { background: #fff; color: #000; }
+
+        input { background: #000; border: 2px solid #fff; color: #fff; padding: 10px; font-family: inherit; font-size: 20px; text-align: center; outline: none; margin-bottom: 20px; }
+        
+        .title { font-size: 32px; color: var(--ut-yellow); text-shadow: 2px 2px red; }
+
+        /* ГРА */
+        #boss-area, #battle-screen, #stats-area, #menu, #controls { opacity: 0; transition: 1s; }
+
+        #enemy-sprite { font-size: 60px; position: relative; }
+        #boss-hp-container { position: absolute; top: -50px; display: none; flex-direction: column; align-items: center; width: 120px; }
+        #boss-hp-bg { width: 100px; height: 12px; background: #444; border: 2px solid #000; position: relative; }
+        #boss-hp-fg { position: absolute; left: 0; top: 0; height: 100%; background: var(--ut-green); width: 100%; }
+        #boss-hp-break { position: absolute; right: 0; top: 0; height: 100%; background: red; width: 0%; transition: width 0.4s; }
+
+        #battle-screen { position: relative; border: 5px solid #fff; width: 280px; height: 160px; background: #000; display: flex; justify-content: center; align-items: center; }
         #heart { position: absolute; width: 14px; height: 14px; background: var(--ut-red); display: none; z-index: 10; border-radius: 2px; }
 
-        #stats-area { width: 280px; margin: 10px 0; opacity: 0; transition: 1s; }
-        #menu { display: flex; gap: 4px; width: 310px; opacity: 0; transition: 1s; }
-        .btn-m { flex: 1; border: 2px solid orange; color: orange; text-align: center; padding: 6px 0; font-size: 10px; font-weight: bold; }
+        #menu { display: flex; gap: 4px; width: 310px; margin-top: 10px; }
+        .btn-m { flex: 1; border: 2px solid orange; color: orange; text-align: center; padding: 8px 0; font-size: 10px; font-weight: bold; }
         .btn-m.active { border-color: var(--ut-yellow); color: var(--ut-yellow); background: #332200; }
 
-        #controls { display: flex; width: 100%; justify-content: space-around; align-items: center; margin-top: auto; padding-bottom: 20px; opacity: 0; transition: 1s; }
-        .d-pad { display: grid; grid-template-columns: repeat(3, 55px); grid-template-rows: repeat(3, 55px); gap: 4px; }
+        #controls { display: flex; width: 100%; justify-content: space-around; align-items: center; margin-top: auto; padding-bottom: 20px; }
+        .d-pad { display: grid; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(3, 60px); gap: 5px; }
         .d-btn { background: #222; border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; border-radius: 8px; }
-        #btn-z { width: 80px; height: 80px; background: #222; border: 4px solid var(--ut-yellow); color: var(--ut-yellow); border-radius: 50%; font-size: 28px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+        #btn-z { width: 85px; height: 85px; background: #222; border: 4px solid var(--ut-yellow); color: var(--ut-yellow); border-radius: 50%; font-size: 32px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
 
         .bullet { position: absolute; background: #fff; border-radius: 50%; width: 8px; height: 8px; }
-        .shaking { animation: shake 0.1s infinite; }
-        @keyframes shake { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(2px,2px); } 50% { transform: translate(-2px,2px); } 75% { transform: translate(2px,-2px); } }
-
-        table { width: 80%; margin-top: 20px; border-collapse: collapse; }
-        th, td { border: 1px solid #fff; padding: 10px; }
+        table { width: 80%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #fff; padding: 8px; font-size: 14px; }
     </style>
 </head>
 <body>
 
     <div id="start-screen">
         <h1 class="title">UNDERTALE SASHA</h1>
-        <p class="blink">Натисніть Z щоб почати</p>
+        <button id="btn-start-game">ПОЧАТИ ГРУ</button>
     </div>
 
-    <div id="name-screen">
-        <h2 style="color:var(--ut-yellow)">Як тебе звати?</h2>
-        <input type="text" id="player-name-input" maxlength="10" placeholder="Введіть ім'я">
-        <p style="margin-top:20px">Натисніть Z для підтвердження</p>
+    <div id="name-screen" style="display:none;">
+        <h2 style="color:var(--ut-yellow)">ЯК ТВОЄ ІМ'Я?</h2>
+        <input type="text" id="player-name-input" maxlength="8" placeholder="ВВЕДІТЬ ТУТ">
+        <div id="btn-confirm-name" style="border:2px solid #fff; padding:10px 20px; cursor:pointer;">ПІДТВЕРДИТИ</div>
     </div>
 
-    <div id="leaderboard-screen">
-        <h2 style="color:var(--ut-green)">РЕКОРДИ (ЧАС ПЕРЕМОГИ)</h2>
-        <table id="leader-table">
-            <tr><th>Гравець</th><th>Час (сек)</th></tr>
-        </table>
-        <button onclick="location.reload()" style="margin-top:20px; background:#fff; padding:10px;">ГРАТИ ЗНОВУ</button>
+    <div id="leaderboard-screen" style="display:none;">
+        <h2 style="color:var(--ut-green)">РЕКОРДИ ПЕРЕМОГИ</h2>
+        <table id="leader-table"></table>
+        <button onclick="location.reload()" style="margin-top:20px; padding:10px;">ЩЕ РАЗ</button>
     </div>
 
-    <div id="boss-area">
+    <div id="boss-area" style="margin-top:50px;">
         <div id="boss-hp-container">
-            <div id="dmg-num" style="color:red; font-weight:bold; font-size:24px;">0</div>
+            <div id="dmg-num" style="color:red; font-size:20px;">0</div>
             <div id="boss-hp-bg"><div id="boss-hp-break"></div><div id="boss-hp-fg"></div></div>
         </div>
         <div id="enemy-sprite">👻</div>
@@ -91,19 +87,19 @@
 
     <div id="battle-screen">
         <div id="heart"></div>
-        <div id="dialog">* Відчуваєш дух суперництва...</div>
-        <div id="attack-bar" style="position:absolute; width:240px; height:130px; border:4px solid #fff; display:none; background:#000; z-index:50;">
-            <div id="slider" style="position:absolute; left:0; top:0; width:10px; height:100%; background:#fff;"></div>
+        <div id="dialog">* Час показати, хто тут справжній розробник!</div>
+        <div id="attack-bar" style="position:absolute; width:240px; height:120px; border:4px solid #fff; display:none; background:#000; z-index:50;">
+            <div id="slider" style="position:absolute; left:0; top:0; width:12px; height:100%; background:#fff; box-shadow: 0 0 10px #fff;"></div>
         </div>
     </div>
 
-    <div id="stats-area">
-        <div style="display:flex; align-items:center; gap:10px; font-size:14px;">
-            <span id="display-name">SASHA</span>
-            <div style="width:60px; height:15px; background:red; position:relative;"><div id="player-hp-fg" style="width:100%; height:100%; background:yellow;"></div></div>
-            <span id="hp-val">20/20</span>
+    <div id="stats-area" style="width:280px; margin-top:10px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <span id="display-name" style="font-size:14px;">SASHA</span>
+            <div style="width:60px; height:14px; background:red; position:relative;"><div id="player-hp-fg" style="width:100%; height:100%; background:yellow;"></div></div>
+            <span id="hp-val" style="font-size:14px;">20/20</span>
         </div>
-        <div style="display:flex; align-items:center; gap:10px; font-size:12px; color:var(--ut-blue); margin-top:5px;">
+        <div style="display:flex; align-items:center; gap:10px; font-size:12px; color:var(--ut-blue); margin-top:4px;">
             <span>MANA</span>
             <div style="width:100px; height:8px; border:1px solid var(--ut-blue);"><div id="mana-fg" style="width:0%; height:100%; background:var(--ut-blue);"></div></div>
         </div>
@@ -128,10 +124,9 @@
 
     <script>
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        let musicStarted = false, gameStarted = false, playerName = "Sasha";
-        let startTime, endTime;
-        let hp = 20, enemyHp = 400, mana = 0, phase = 'START', menuIdx = 0;
-        let px = 130, py = 70, sPos = 0, sDir = 1;
+        let musicStarted = false, phase = 'START', playerName = "SASHA", startTime;
+        let hp = 20, enemyHp = 400, mana = 0, menuIdx = 0, sPos = 0, sDir = 1;
+        let px = 130, py = 70;
         const keys = { up: false, down: false, left: false, right: false };
 
         function playNote(freq, dur, type = 'square', vol = 0.05) {
@@ -149,13 +144,35 @@
             let i = 0; setInterval(() => { playNote(m[i % m.length], 0.15); i++; }, 150);
         }
 
+        // Пряма кнопка старту для активації аудіо на телефонах
+        document.getElementById('btn-start-game').onclick = () => {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            startMusic();
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('name-screen').style.display = 'flex';
+            phase = 'NAME';
+        };
+
+        // Кнопка підтвердження імені
+        document.getElementById('btn-confirm-name').onclick = () => {
+            const val = document.getElementById('player-name-input').value;
+            if (val) playerName = val.toUpperCase();
+            document.getElementById('display-name').innerText = playerName;
+            document.getElementById('name-screen').style.display = 'none';
+            startGame();
+        };
+
+        function startGame() {
+            phase = 'MENU';
+            startTime = Date.now();
+            ['boss-area', 'battle-screen', 'stats-area', 'menu', 'controls'].forEach(id => {
+                document.getElementById(id).style.opacity = '1';
+            });
+        }
+
         const setupBtn = (id) => {
             const el = document.getElementById(id);
-            const start = (e) => { 
-                e.preventDefault(); 
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-                if (id === 'btn-z') pressZ(); else keys[id] = true; 
-            };
+            const start = (e) => { e.preventDefault(); if (id === 'btn-z') pressZ(); else keys[id] = true; };
             const end = (e) => { e.preventDefault(); keys[id] = false; };
             el.addEventListener('touchstart', start); el.addEventListener('touchend', end);
             el.addEventListener('mousedown', start); el.addEventListener('mouseup', end);
@@ -163,29 +180,10 @@
         ['up','down','left','right','btn-z'].forEach(setupBtn);
 
         function pressZ() {
-            if (phase === 'START') {
-                startMusic();
-                document.getElementById('start-screen').style.display = 'none';
-                document.getElementById('name-screen').style.display = 'flex';
-                phase = 'NAME';
-            } else if (phase === 'NAME') {
-                const input = document.getElementById('player-name-input').value;
-                if (input) playerName = input;
-                document.getElementById('display-name').innerText = playerName.toUpperCase();
-                document.getElementById('name-screen').style.display = 'none';
-                showGame();
-                startTime = Date.now();
-                phase = 'MENU';
-            } else if (phase === 'MENU') {
+            if (phase === 'MENU') {
                 if (menuIdx === 0) startAttack();
                 else if (menuIdx === 2 && mana >= 100) { mana = 0; hp = Math.min(20, hp+5); updateUI(); enemyTurn(); }
             } else if (phase === 'ATTACK') finishAttack();
-        }
-
-        function showGame() {
-            ['boss-area', 'battle-screen', 'stats-area', 'menu', 'controls'].forEach(id => {
-                document.getElementById(id).style.opacity = '1';
-            });
         }
 
         function startAttack() {
@@ -194,26 +192,22 @@
         }
 
         function finishAttack() {
-            const dmg = Math.abs(sPos - 120) < 20 ? 80 : 30;
+            const dmg = Math.abs(sPos - 120) < 25 ? 85 : 35;
             const prevHp = enemyHp;
             enemyHp = Math.max(0, enemyHp - dmg);
             phase = 'BUSY';
             document.getElementById('attack-bar').style.display = 'none';
             
             const hpCont = document.getElementById('boss-hp-container');
-            const hpFg = document.getElementById('boss-hp-fg');
-            const hpBrk = document.getElementById('boss-hp-break');
-            
             document.getElementById('dmg-num').innerText = dmg;
+            document.getElementById('boss-hp-fg').style.width = (enemyHp/400*100) + '%';
+            document.getElementById('boss-hp-break').style.width = ((prevHp - enemyHp)/400*100) + '%';
+            document.getElementById('boss-hp-break').style.left = (enemyHp/400*100) + '%';
             hpCont.style.display = 'flex';
-            hpFg.style.width = (enemyHp/400*100) + '%';
-            hpBrk.style.width = ((prevHp - enemyHp)/400*100) + '%';
-            hpBrk.style.left = (enemyHp/400*100) + '%';
 
             setTimeout(() => {
                 hpCont.style.display = 'none';
-                hpBrk.style.width = '0%';
-                if (enemyHp <= 0) winGame(); else enemyTurn();
+                if (enemyHp <= 0) win(); else enemyTurn();
             }, 800);
         }
 
@@ -222,7 +216,7 @@
             document.getElementById('heart').style.display = 'block'; px = 130; py = 120;
             let t = 80;
             const iv = setInterval(() => {
-                if (t % 10 === 0) spawnBullet(Math.random()*260, -10, 0, 4);
+                if (t % 10 === 0) spawnBullet(Math.random()*260, -10, 0, 4.5);
                 if (--t <= 0 || hp <= 0) { 
                     clearInterval(iv); 
                     if (hp > 0) { phase = 'MENU'; document.getElementById('heart').style.display = 'none'; document.getElementById('dialog').style.display = 'block'; }
@@ -237,7 +231,7 @@
             const m = setInterval(() => {
                 x += vx; y += vy; b.style.left = x + 'px'; b.style.top = y + 'px';
                 const hr = heart.getBoundingClientRect(), br = b.getBoundingClientRect();
-                if (Math.hypot(hr.left-br.left, hr.top-br.top) < 40) mana = Math.min(100, mana+1);
+                if (Math.hypot(hr.left-br.left, hr.top-br.top) < 40) { mana = Math.min(100, mana+1); updateUI(); }
                 if (!(br.left > hr.right || br.right < hr.left || br.top > hr.bottom || br.bottom < hr.top)) { hp--; updateUI(); b.remove(); clearInterval(m); }
                 if (y > 170 || phase !== 'DODGE') { b.remove(); clearInterval(m); }
             }, 30);
@@ -249,43 +243,29 @@
             document.getElementById('mana-fg').style.width = mana + "%";
         }
 
-        function winGame() {
-            endTime = Date.now();
-            const totalTime = ((endTime - startTime) / 1000).toFixed(2);
-            saveScore(playerName, totalTime);
-            showLeaderboard();
-        }
-
-        function saveScore(name, time) {
-            let scores = JSON.parse(localStorage.getItem('undertaleScores') || '[]');
-            scores.push({ name, time: parseFloat(time) });
-            scores.sort((a, b) => a.time - b.time);
-            scores = scores.slice(0, 5); // Тільки ТОП-5
-            localStorage.setItem('undertaleScores', JSON.stringify(scores));
-        }
-
-        function showLeaderboard() {
-            phase = 'WIN';
-            const screen = document.getElementById('leaderboard-screen');
-            const table = document.getElementById('leader-table');
-            const scores = JSON.parse(localStorage.getItem('undertaleScores') || '[]');
+        function win() {
+            const totalTime = ((Date.now() - startTime) / 1000).toFixed(2);
+            let scores = JSON.parse(localStorage.getItem('ut_scores') || '[]');
+            scores.push({ name: playerName, time: totalTime });
+            scores.sort((a,b) => a.time - b.time);
+            localStorage.setItem('ut_scores', JSON.stringify(scores.slice(0, 5)));
             
-            table.innerHTML = '<tr><th>Гравець</th><th>Час (сек)</th></tr>';
-            scores.forEach(s => {
-                table.innerHTML += `<tr><td>${s.name}</td><td>${s.time}</td></tr>`;
-            });
-            screen.style.display = 'flex';
+            phase = 'WIN';
+            const table = document.getElementById('leader-table');
+            table.innerHTML = '<tr><th>ІМ\'Я</th><th>ЧАС (СЕК)</th></tr>';
+            scores.slice(0, 5).forEach(s => table.innerHTML += `<tr><td>${s.name}</td><td>${s.time}</td></tr>`);
+            document.getElementById('leaderboard-screen').style.display = 'flex';
         }
 
         function main() {
             if (phase === 'MENU') {
-                if (keys.left) { menuIdx = (menuIdx + 3) % 4; keys.left = false; playNote(440, 0.05); }
-                if (keys.right) { menuIdx = (menuIdx + 1) % 4; keys.right = false; playNote(440, 0.05); }
+                if (keys.left) { menuIdx = (menuIdx + 3) % 4; keys.left = false; }
+                if (keys.right) { menuIdx = (menuIdx + 1) % 4; keys.right = false; }
                 [0,1,2,3].forEach(i => document.getElementById('m'+i).classList.toggle('active', i === menuIdx));
             }
             if (phase === 'DODGE') {
-                if (keys.up && py > 5) py -= 4; if (keys.down && py < 140) py += 4;
-                if (keys.left && px > 5) px -= 4; if (keys.right && px < 260) px += 4;
+                if (keys.up && py > 5) py -= 4.5; if (keys.down && py < 140) py += 4.5;
+                if (keys.left && px > 5) px -= 4.5; if (keys.right && px < 260) px += 4.5;
                 heart.style.left = px + 'px'; heart.style.top = py + 'px';
             }
             if (phase === 'ATTACK') { sPos += (8 * sDir); if (sPos > 230 || sPos < 0) sDir *= -1; document.getElementById('slider').style.left = sPos + 'px'; }
@@ -296,3 +276,4 @@
 </body>
 </html>
 
+    
