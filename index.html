@@ -6,48 +6,38 @@
     <title>сашині-казки</title>
     <style>
         :root { --ut-red: #ff0000; --ut-yellow: #ffff00; --ut-green: #00ff00; --ut-blue: #4deeea; --roblox-yellow: #f5cd30; --roblox-blue: #00a2ff; --roblox-green: #287f46; }
-        body { background: #000; color: #fff; margin: 0; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; touch-action: none; -webkit-tap-highlight-color: transparent; }
+        body { background: #000; color: #fff; margin: 0; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; touch-action: none; }
         
-        #changelog-overlay { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #080808; border: 3px solid #fff; width: 90%; max-height: 80%; overflow-y: auto; z-index: 4000; display: none; box-shadow: 0 0 50px rgba(255, 255, 255, 0.2); border-radius: 8px; }
-        .log-title { background: #fff; color: #000; padding: 12px; font-weight: bold; text-align: center; font-size: 20px; letter-spacing: 2px; }
-        .log-body { padding: 20px; }
-        .ver-block { margin-bottom: 25px; border-left: 4px solid var(--ut-blue); padding-left: 15px; }
-        .ver-tag { background: var(--ut-blue); color: #000; padding: 2px 8px; font-weight: bold; font-size: 11px; border-radius: 3px; }
-        .ver-num { color: var(--ut-yellow); font-size: 18px; font-weight: bold; margin-left: 10px; }
-        .change-list { list-style: none; padding: 0; margin: 12px 0; }
-        .change-list li { margin: 8px 0; font-size: 14px; color: #ccc; display: flex; align-items: flex-start; }
-        .change-list li::before { content: "»"; color: var(--ut-blue); margin-right: 10px; }
-
-        #intro-layer { position: fixed; inset: 0; background: #000; z-index: 3000; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; }
+        #intro-layer { position: fixed; inset: 0; background: #000; z-index: 3000; display: flex; align-items: center; justify-content: center; flex-direction: column; }
         .overlay { position: fixed; inset: 0; background: #000; z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .btn-ui { border: 2px solid #fff; padding: 15px 20px; cursor: pointer; margin: 10px; font-weight: bold; background: #000; color: #fff; width: 280px; font-size: 16px; transition: 0.2s; outline: none; }
+        
+        .btn-ui { border: 2px solid #fff; padding: 15px 20px; cursor: pointer; margin: 10px; font-weight: bold; background: #000; color: #fff; width: 280px; font-size: 16px; transition: 0.1s; z-index: 3001; }
         .btn-ui:active { background: #fff; color: #000; }
 
         #game-container { display: none; flex-direction: column; align-items: center; width: 100%; height: 100%; }
         #boss-area { height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
-        .boss-glitch { animation: glitch 0.2s infinite; }
-        @keyframes glitch { 0% { transform: translate(0); } 50% { transform: translate(-2px, 1px); opacity: 0.9; } 100% { transform: translate(0); } }
-
+        
         .roblox-char { position: relative; width: 60px; height: 80px; }
         .r-head { width: 25px; height: 25px; background: var(--roblox-yellow); margin: 0 auto; border-radius: 4px; border: 2px solid #000; }
-        .r-body { width: 45px; height: 40px; background: var(--roblox-blue); margin: 2px auto; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: white; font-weight: bold; }
+        .r-body { width: 45px; height: 40px; background: var(--roblox-blue); margin: 2px auto; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: white; }
         .r-legs { display: flex; justify-content: center; gap: 3px; }
         .r-leg { width: 20px; height: 22px; background: var(--roblox-green); border-radius: 2px; }
 
         #boss-hp-bg { width: 200px; height: 14px; background: #333; border: 2px solid #fff; margin-top: 10px; }
         #boss-hp-fg { height: 100%; background: var(--ut-green); width: 100%; transition: width 0.3s; }
+        
         #battle-screen { position: relative; border: 4px solid #fff; width: 300px; height: 140px; background: #000; overflow: hidden; margin-top: 10px; }
         #heart { position: absolute; width: 16px; height: 16px; background: var(--ut-red); z-index: 100; border-radius: 2px; display: none; }
         #dialog { padding: 12px; font-size: 14px; line-height: 1.4; height: 45px; box-sizing: border-box; }
+        
         #menu { display: flex; gap: 4px; width: 310px; margin-top: 10px; }
         .btn-m { flex: 1; border: 2px solid orange; color: orange; padding: 12px 0; font-size: 10px; text-align: center; font-weight: bold; cursor: pointer; }
         .btn-m.active { background: #332200; color: var(--ut-yellow); border-color: var(--ut-yellow); }
-        .can-spare { color: var(--ut-yellow) !important; border-color: var(--ut-yellow) !important; text-shadow: 0 0 5px var(--ut-yellow); }
 
         #controls { margin-top: auto; padding-bottom: 20px; display: flex; width: 100%; justify-content: space-around; align-items: center; }
         .d-pad { display: grid; grid-template-columns: repeat(3, 65px); gap: 10px; }
-        .d-btn { background: #222; border: 2px solid #fff; height: 65px; display: flex; align-items: center; justify-content: center; font-size: 24px; border-radius: 10px; color: white; user-select: none; -webkit-user-select: none; }
-        #btn-z { width: 80px; height: 80px; background: #222; border: 4px solid var(--ut-yellow); color: var(--ut-yellow); border-radius: 50%; font-size: 32px; font-weight: bold; display: flex; align-items: center; justify-content: center; user-select: none; -webkit-user-select: none; }
+        .d-btn { background: #222; border: 2px solid #fff; height: 65px; display: flex; align-items: center; justify-content: center; font-size: 24px; border-radius: 10px; color: white; user-select: none; }
+        #btn-z { width: 80px; height: 80px; background: #222; border: 4px solid var(--ut-yellow); color: var(--ut-yellow); border-radius: 50%; font-size: 32px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
 
         .wall, .cursor, .tear { position: absolute; z-index: 50; pointer-events: none; }
         .wall { background: var(--roblox-blue); border: 1px solid #fff; }
@@ -55,47 +45,28 @@
         .tear { background: #fff; width: 10px; height: 10px; border-radius: 50%; }
 
         #mana-container { width: 100%; height: 8px; border: 1px solid var(--ut-blue); margin-top: 5px; background: #111; }
-        #mana-bar { height: 100%; background: var(--ut-blue); width: 0%; transition: width 0.1s; }
+        #mana-bar { height: 100%; background: var(--ut-blue); width: 0%; }
         #attack-bar { position:absolute; inset:0; border:2px solid #fff; display:none; background:#000; z-index: 500; }
-        #slider { position:absolute; left:0; top:0; width:12px; height:100%; background:#fff; box-shadow: 0 0 8px #fff; }
-        .shake { animation: shake 0.2s; }
-        @keyframes shake { 0% { transform: translate(3px, 3px); } 25% { transform: translate(-3px, -3px); } 50% { transform: translate(3px, -3px); } 100% { transform: translate(0, 0); } }
+        #slider { position:absolute; left:0; top:0; width:12px; height:100%; background:#fff; }
     </style>
 </head>
 <body>
 
-    <div id="changelog-overlay">
-        <div class="log-title">DATABASE LOGS</div>
-        <div class="log-body">
-            <div class="ver-block">
-                <span class="ver-tag">WEB RELEASE</span>
-                <span class="ver-num">v1.2.5</span>
-                <ul class="change-list">
-                    <li>Гра оптимізована для GitHub Pages та мобільних браузерів.</li>
-                    <li>Виправлено префікс-баги в системі анімації.</li>
-                    <li>Додано стабільну систему MERCY та мана-бар.</li>
-                </ul>
-            </div>
-        </div>
-        <button class="btn-ui" style="width: 100%; margin: 0; background: #fff; color: #000; border:none;" onclick="toggleChangelog(false)">ЗАКРИТИ</button>
-    </div>
-
     <div id="intro-layer">
-        <h1 style="color: var(--ut-yellow); font-size: 32px;">САШИНІ-КАЗКИ</h1>
+        <h1 style="color: var(--ut-yellow);">САШИНІ-КАЗКИ</h1>
         <button class="btn-ui" onclick="initGame()">ГРАТИ</button>
-        <button class="btn-ui" style="font-size: 12px; color: var(--ut-blue); border-color: var(--ut-blue);" onclick="toggleChangelog(true)">ЖУРНАЛ ОНОВЛЕНЬ</button>
     </div>
 
     <div id="screen-name" class="overlay">
         <h2>ЯК ТЕБЕ ЗВАТИ?</h2>
-        <input type="text" id="input-name" value="SASHA" maxlength="8" style="background:#000; color:#fff; border:2px solid #fff; padding:15px; font-size:20px; text-align:center; outline:none; width: 200px;">
+        <input type="text" id="input-name" value="SASHA" maxlength="8" style="background:#000; color:#fff; border:2px solid #fff; padding:15px; font-size:20px; text-align:center;">
         <button class="btn-ui" onclick="goToChoice()">ДАЛІ</button>
     </div>
 
     <div id="screen-choice" class="overlay">
-        <h2>ОБЕРИ ДОЛЮ</h2>
+        <h2>ОБЕРИ ВОРОГА</h2>
         <button class="btn-ui" onclick="startGame(1)">👻 НАПСТАБЛУК</button>
-        <button class="btn-ui" style="color:var(--ut-red); border-color:var(--ut-red);" onclick="startGame(2)">🧱 АНДР1015 (БОС)</button>
+        <button class="btn-ui" style="color:var(--ut-red);" onclick="startGame(2)">🧱 АНДР1015 (БОС)</button>
     </div>
 
     <div id="game-container">
@@ -143,47 +114,55 @@
         let mode='INTRO', menuIdx=0, sPos=0, sDir=1, px=142, py=62, audioCtx;
         const keys={up:false, down:false, left:false, right:false};
 
-        function playSound(freq) {
+        function initGame() {
+            // Створюємо аудіо-контекст тільки після кліку
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            document.getElementById('intro-layer').style.display='none';
+            document.getElementById('screen-name').style.display='flex';
+        }
+
+        function playSound(freq) {
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            if (!audioCtx) return;
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = 'square'; osc.frequency.value = freq;
-            gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.01, audioCtx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1);
             osc.connect(gain); gain.connect(audioCtx.destination);
             osc.start(); osc.stop(audioCtx.currentTime + 0.1);
         }
 
-        function toggleChangelog(show) { document.getElementById('changelog-overlay').style.display = show ? 'block' : 'none'; }
-        function initGame() { document.getElementById('intro-layer').style.display='none'; document.getElementById('screen-name').style.display='flex'; }
-        function goToChoice() { pName = document.getElementById('input-name').value.trim().toUpperCase() || "SASHA"; document.getElementById('screen-name').style.display='none'; document.getElementById('screen-choice').style.display='flex'; }
+        function goToChoice() {
+            pName = document.getElementById('input-name').value.trim().toUpperCase() || "SASHA";
+            document.getElementById('screen-name').style.display='none';
+            document.getElementById('screen-choice').style.display='flex';
+        }
 
         function startGame(id) {
             bossId=id; eHp = (id === 1 ? 1000 : 3500); maxE = eHp; actCount=0;
             document.getElementById('enemy-sprite').innerText = (id === 1 ? '👻' : '');
             document.getElementById('roblox-sprite').style.display = (id === 2 ? 'block' : 'none');
-            if(id === 2) document.getElementById('roblox-sprite').classList.add('boss-glitch');
             document.getElementById('screen-choice').style.display='none';
             document.getElementById('game-container').style.display='flex';
             document.getElementById('disp-name').innerText=pName;
             mode='MENU'; updateUI(); requestAnimationFrame(loop);
-            msg(id === 1 ? "* Напстаблук боїться вас." : "* Андр1015: Вхід у систему захищено.");
+            msg("* Бій почався!");
         }
 
         function setMenu(i) { if(mode==='MENU') { menuIdx=i; [0,1,2,3].forEach(n=>document.getElementById('m'+n).classList.toggle('active', n===i)); playSound(440); } }
-        function isSpareable() { return (bossId === 1 && actCount >= 3) || (bossId === 2 && actCount >= 5); }
-
+        
         function pressZ() {
             if(mode==='MENU') {
                 if(menuIdx===0) { mode='ATTACK'; document.getElementById('attack-bar').style.display='block'; sPos=0; }
-                if(menuIdx===1) { actCount++; msg(bossId===1?"* Ви намагаєтесь розважити привида.":"* Ви ламаєте логіку Андрія."); next(); }
-                if(menuIdx===2) { if(mana>=25){ hp=Math.min(20, hp+12); mana-=25; msg("* Patch apply: +12 HP."); } else msg("* Недостатньо енергії!"); updateUI(); next(); }
-                if(menuIdx===3) { if(isSpareable()) { alert('МИРНА ПЕРЕМОГА! Це кінець казки.'); location.reload(); } else { msg("* Пощада не спрацювала."); next(); } }
+                else if(menuIdx===1) { actCount++; msg("* Ви дієте..."); next(); }
+                else if(menuIdx===2) { hp=Math.min(20, hp+10); msg("* +10 HP!"); updateUI(); next(); }
+                else if(menuIdx===3) { if(actCount>=3) { alert('WIN!'); location.reload(); } else { msg("* Неможливо."); next(); } }
                 playSound(880);
             } else if(mode==='ATTACK') {
-                let d = Math.abs(sPos-150)<25?600:150; eHp-=d;
+                let d = Math.abs(sPos-150)<25?500:100; eHp-=d;
                 document.getElementById('attack-bar').style.display='none';
-                msg("* УДАР: "+d+"!"); playSound(220); setTimeout(()=>eHp<=0?location.reload():enemyTurn(), 800);
+                msg("* УДАР: "+d); setTimeout(()=>eHp<=0?location.reload():enemyTurn(), 800);
             }
         }
 
@@ -192,41 +171,27 @@
 
         function enemyTurn() {
             mode='DODGE'; px=142; py=62; document.getElementById('heart').style.display='block';
-            let t=0; const limit = bossId===2 ? 80 : 50;
+            let t=0;
             const turnInterval = setInterval(() => {
-                if(hp <= 0) { clearInterval(turnInterval); return; }
                 t++; 
-                if(bossId===1) spawnTear(); 
-                else { if(t%12===0) spawnWall(); if(t%18===0) spawnCursor(); }
-                if(t>limit) { 
+                if(bossId===1) spawnTear(); else spawnWall();
+                if(t>40 || hp<=0) { 
                     clearInterval(turnInterval); document.getElementById('heart').style.display='none'; 
-                    mode='MENU'; updateUI();
-                    document.getElementById('m3').classList.toggle('can-spare', isSpareable());
-                    msg("* Ваш хід."); 
+                    if(hp<=0) { alert('GAME OVER'); location.reload(); }
+                    else { mode='MENU'; updateUI(); msg("* Ваш хід."); }
                 }
-            }, 100);
+            }, 150);
         }
 
         function spawnWall() {
             const w=document.createElement('div'); w.className='wall';
-            w.style.width='100px'; w.style.height='15px'; w.style.top=Math.random()*110+'px'; w.style.left='-100px';
+            w.style.width='80px'; w.style.height='15px'; w.style.top=Math.random()*110+'px'; w.style.left='-80px';
             document.getElementById('battle-screen').appendChild(w);
-            let x=-100; const m=setInterval(()=>{ 
-                x+=8; w.style.left=x+'px'; 
-                if(checkCol(w)){ hp-=3; w.remove(); clearInterval(m); updateUI(); shake(); }
-                if(x>320 || mode!=='DODGE'){ w.remove(); clearInterval(m); }
-            },25);
-        }
-
-        function spawnCursor() {
-            const c=document.createElement('div'); c.className='cursor';
-            c.style.left=px+'px'; c.style.top='-30px';
-            document.getElementById('battle-screen').appendChild(c);
-            let y=-30; const m=setInterval(()=>{ 
-                y+=10; c.style.top=y+'px'; 
-                if(checkCol(c)){ hp-=4; c.remove(); clearInterval(m); updateUI(); shake(); }
-                if(y>150 || mode!=='DODGE'){ c.remove(); clearInterval(m); }
-            },20);
+            let x=-80; const m=setInterval(()=>{ 
+                x+=6; w.style.left=x+'px'; 
+                if(checkCol(w)){ hp-=4; w.remove(); clearInterval(m); updateUI(); }
+                if(x>300 || mode!=='DODGE'){ w.remove(); clearInterval(m); }
+            },30);
         }
 
         function spawnTear() {
@@ -234,36 +199,30 @@
             p.style.left=Math.random()*280+'px'; p.style.top='-10px';
             document.getElementById('battle-screen').appendChild(p);
             let y=-10; const m=setInterval(()=>{ 
-                y+=6; p.style.top=y+'px'; 
-                if(checkCol(p)){ hp-=2; p.remove(); clearInterval(m); updateUI(); shake(); }
+                y+=5; p.style.top=y+'px'; 
+                if(checkCol(p)){ hp-=2; p.remove(); clearInterval(m); updateUI(); }
                 if(y>150 || mode!=='DODGE'){ p.remove(); clearInterval(m); }
             },30);
         }
 
         function checkCol(el) {
-            if(mode!=='DODGE') return false;
             const hr=document.getElementById('heart').getBoundingClientRect(), er=el.getBoundingClientRect();
             return !(er.left>hr.right||er.right<hr.left||er.top>hr.bottom||er.bottom<hr.top);
         }
 
-        function shake() { document.getElementById('battle-screen').classList.add('shake'); setTimeout(()=>document.getElementById('battle-screen').classList.remove('shake'), 200); }
         function updateUI() { 
-            document.getElementById('hp-text').innerText=Math.max(0,hp)+"/20"; 
-            document.getElementById('boss-hp-fg').style.width=(Math.max(0,eHp)/maxE*100)+"%"; 
-            document.getElementById('mana-bar').style.width=Math.min(100, mana)+"%";
-            if(hp<=0 && mode!=='DEAD') { mode='DEAD'; alert('Гра закінчена. Спробуй ще!'); location.reload(); }
+            document.getElementById('hp-text').innerText=hp+"/20"; 
+            document.getElementById('boss-hp-fg').style.width=(eHp/maxE*100)+"%"; 
         }
 
         function loop() {
             if(mode==='DODGE') {
-                const spd = 5.5;
-                if(keys.up && py > 2) py -= spd; if(keys.down && py < 122) py += spd;
-                if(keys.left && px > 2) px -= spd; if(keys.right && px < 282) px += spd;
+                if(keys.up && py > 2) py -= 4; if(keys.down && py < 122) py += 4;
+                if(keys.left && px > 2) px -= 4; if(keys.right && px < 282) px += 4;
                 const h = document.getElementById('heart');
                 h.style.left=px+'px'; h.style.top=py+'px';
-                if(mana<100) mana+=0.35; updateUI();
             }
-            if(mode==='ATTACK') { sPos+=(13*sDir); if(sPos>288||sPos<0) sDir*=-1; document.getElementById('slider').style.left=sPos+'px'; }
+            if(mode==='ATTACK') { sPos+=(10*sDir); if(sPos>288||sPos<0) sDir*=-1; document.getElementById('slider').style.left=sPos+'px'; }
             requestAnimationFrame(loop);
         }
 
@@ -271,5 +230,5 @@
         window.addEventListener('keyup', e => { if(e.key.includes('Arrow')) keys[e.key.replace('Arrow','').toLowerCase()] = false; });
     </script>
 </body>
-    </html>
+</html>
 
