@@ -3,49 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>сашині-казки</title>
+    <title>сашині-казки: WEB EDITION</title>
     <style>
-        :root { --ut-red: #ff0000; --ut-yellow: #ffff00; --ut-green: #00ff00; --ut-blue: #4deeea; --roblox-yellow: #f5cd30; --roblox-blue: #00a2ff; --roblox-green: #287f46; }
+        :root { --ut-red: #ff0000; --ut-yellow: #ffff00; --ut-green: #00ff00; --ut-blue: #4deeea; }
         body { background: #000; color: #fff; margin: 0; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; touch-action: none; }
         
         #intro-layer { position: fixed; inset: 0; background: #000; z-index: 3000; display: flex; align-items: center; justify-content: center; flex-direction: column; }
         .overlay { position: fixed; inset: 0; background: #000; z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
         
-        .btn-ui { border: 2px solid #fff; padding: 15px 20px; cursor: pointer; margin: 10px; font-weight: bold; background: #000; color: #fff; width: 280px; font-size: 16px; transition: 0.1s; z-index: 3001; }
+        .btn-ui { border: 2px solid #fff; padding: 15px 20px; cursor: pointer; margin: 10px; font-weight: bold; background: #000; color: #fff; width: 280px; font-size: 16px; z-index: 3001; }
         .btn-ui:active { background: #fff; color: #000; }
 
         #game-container { display: none; flex-direction: column; align-items: center; width: 100%; height: 100%; }
         #boss-area { height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
         
-        .roblox-char { position: relative; width: 60px; height: 80px; }
-        .r-head { width: 25px; height: 25px; background: var(--roblox-yellow); margin: 0 auto; border-radius: 4px; border: 2px solid #000; }
-        .r-body { width: 45px; height: 40px; background: var(--roblox-blue); margin: 2px auto; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: white; }
-        .r-legs { display: flex; justify-content: center; gap: 3px; }
-        .r-leg { width: 20px; height: 22px; background: var(--roblox-green); border-radius: 2px; }
-
-        #boss-hp-bg { width: 200px; height: 14px; background: #333; border: 2px solid #fff; margin-top: 10px; }
-        #boss-hp-fg { height: 100%; background: var(--ut-green); width: 100%; transition: width 0.3s; }
-        
         #battle-screen { position: relative; border: 4px solid #fff; width: 300px; height: 140px; background: #000; overflow: hidden; margin-top: 10px; }
         #heart { position: absolute; width: 16px; height: 16px; background: var(--ut-red); z-index: 100; border-radius: 2px; display: none; }
-        #dialog { padding: 12px; font-size: 14px; line-height: 1.4; height: 45px; box-sizing: border-box; }
         
         #menu { display: flex; gap: 4px; width: 310px; margin-top: 10px; }
         .btn-m { flex: 1; border: 2px solid orange; color: orange; padding: 12px 0; font-size: 10px; text-align: center; font-weight: bold; cursor: pointer; }
         .btn-m.active { background: #332200; color: var(--ut-yellow); border-color: var(--ut-yellow); }
 
-        #controls { margin-top: auto; padding-bottom: 20px; display: flex; width: 100%; justify-content: space-around; align-items: center; }
-        .d-pad { display: grid; grid-template-columns: repeat(3, 65px); gap: 10px; }
-        .d-btn { background: #222; border: 2px solid #fff; height: 65px; display: flex; align-items: center; justify-content: center; font-size: 24px; border-radius: 10px; color: white; user-select: none; }
-        #btn-z { width: 80px; height: 80px; background: #222; border: 4px solid var(--ut-yellow); color: var(--ut-yellow); border-radius: 50%; font-size: 32px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+        #controls { margin-top: auto; padding-bottom: 20px; display: flex; width: 100%; justify-content: space-around; }
+        .d-pad { display: grid; grid-template-columns: repeat(3, 60px); gap: 8px; }
+        .d-btn { background: #222; border: 2px solid #fff; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 20px; border-radius: 8px; color: white; user-select: none; }
+        #btn-z { width: 70px; height: 70px; background: #222; border: 4px solid var(--ut-yellow); color: var(--ut-yellow); border-radius: 50%; font-size: 28px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
 
-        .wall, .cursor, .tear { position: absolute; z-index: 50; pointer-events: none; }
-        .wall { background: var(--roblox-blue); border: 1px solid #fff; }
-        .cursor { width: 20px; height: 20px; background: #fff; clip-path: polygon(0 0, 100% 70%, 50% 70%, 80% 100%, 60% 100%, 30% 70%, 0 70%); }
-        .tear { background: #fff; width: 10px; height: 10px; border-radius: 50%; }
-
-        #mana-container { width: 100%; height: 8px; border: 1px solid var(--ut-blue); margin-top: 5px; background: #111; }
-        #mana-bar { height: 100%; background: var(--ut-blue); width: 0%; }
+        .wall { position: absolute; background: #00a2ff; border: 1px solid #fff; z-index: 50; }
         #attack-bar { position:absolute; inset:0; border:2px solid #fff; display:none; background:#000; z-index: 500; }
         #slider { position:absolute; left:0; top:0; width:12px; height:100%; background:#fff; }
     </style>
@@ -54,12 +38,13 @@
 
     <div id="intro-layer">
         <h1 style="color: var(--ut-yellow);">САШИНІ-КАЗКИ</h1>
-        <button class="btn-ui" onclick="initGame()">ГРАТИ</button>
+        <p style="font-size: 12px;">v1.2.6 (GITHUB READY)</p>
+        <button class="btn-ui" id="start-trigger">ПОЧАТИ ГРУ</button>
     </div>
 
     <div id="screen-name" class="overlay">
-        <h2>ЯК ТЕБЕ ЗВАТИ?</h2>
-        <input type="text" id="input-name" value="SASHA" maxlength="8" style="background:#000; color:#fff; border:2px solid #fff; padding:15px; font-size:20px; text-align:center;">
+        <h2>ТВОЄ ІМ'Я?</h2>
+        <input type="text" id="input-name" value="SASHA" maxlength="8" style="background:#000; color:#fff; border:2px solid #fff; padding:10px; font-size:18px; text-align:center;">
         <button class="btn-ui" onclick="goToChoice()">ДАЛІ</button>
     </div>
 
@@ -71,33 +56,22 @@
 
     <div id="game-container">
         <div id="boss-area">
-            <div id="enemy-sprite" style="font-size: 80px;"></div>
-            <div id="roblox-sprite" class="roblox-char" style="display:none;">
-                <div class="r-head"></div>
-                <div class="r-body">BOSS</div>
-                <div class="r-legs"><div class="r-leg"></div><div class="r-leg"></div></div>
+            <div id="enemy-sprite" style="font-size: 60px;">🤖</div>
+            <div id="hp-bar" style="width:200px; height:10px; background:#333; border:2px solid #fff; margin-top:10px;">
+                <div id="hp-fill" style="width:100%; height:100%; background:var(--ut-green);"></div>
             </div>
-            <div id="boss-hp-bg"><div id="boss-hp-fg"></div></div>
         </div>
-
         <div id="battle-screen">
             <div id="heart"></div>
-            <div id="dialog"></div>
+            <div id="dialog" style="padding:10px; font-size:14px;">* Ви готові?</div>
             <div id="attack-bar"><div id="slider"></div></div>
         </div>
-
-        <div id="stats" style="width:300px; margin-top:10px; font-size: 14px;">
-            <b id="disp-name">SASHA</b> LV 1 <span style="margin-left:20px;">HP <span id="hp-text">20/20</span></span>
-            <div id="mana-container"><div id="mana-bar"></div></div>
-        </div>
-
         <div id="menu">
             <div id="m0" class="btn-m active" onclick="setMenu(0)">FIGHT</div>
             <div id="m1" class="btn-m" onclick="setMenu(1)">ACT</div>
             <div id="m2" class="btn-m" onclick="setMenu(2)">ITEM</div>
             <div id="m3" class="btn-m" onclick="setMenu(3)">MERCY</div>
         </div>
-
         <div id="controls">
             <div class="d-pad">
                 <div class="d-btn" style="grid-column:2" ontouchstart="keys.up=true" ontouchend="keys.up=false">▲</div>
@@ -110,98 +84,88 @@
     </div>
 
     <script>
-        let pName="SASHA", bossId=1, hp=20, eHp=1000, maxE=1000, mana=0, actCount=0;
+        let pName="SASHA", hp=20, eHp=1000, maxE=1000, act=0;
         let mode='INTRO', menuIdx=0, sPos=0, sDir=1, px=142, py=62, audioCtx;
         const keys={up:false, down:false, left:false, right:false};
 
-        function initGame() {
-            // Створюємо аудіо-контекст тільки після кліку
+        // СИНТЕЗАТОР MEGALOVANIA
+        function startMusic() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const notes = [293, 293, 587, 440, 415, 392, 349, 293, 349, 392];
+            let i = 0;
+            setInterval(() => {
+                if(hp <= 0) return;
+                let osc = audioCtx.createOscillator();
+                let g = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.value = notes[i % notes.length];
+                g.gain.setValueAtTime(0.015, audioCtx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1);
+                osc.connect(g); g.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+                i++;
+            }, 125);
+        }
+
+        document.getElementById('start-trigger').onclick = () => {
+            startMusic();
             document.getElementById('intro-layer').style.display='none';
             document.getElementById('screen-name').style.display='flex';
-        }
-
-        function playSound(freq) {
-            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-            if (!audioCtx) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'square'; osc.frequency.value = freq;
-            gain.gain.setValueAtTime(0.01, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1);
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-        }
+        };
 
         function goToChoice() {
-            pName = document.getElementById('input-name').value.trim().toUpperCase() || "SASHA";
+            pName = document.getElementById('input-name').value || "SASHA";
             document.getElementById('screen-name').style.display='none';
             document.getElementById('screen-choice').style.display='flex';
         }
 
         function startGame(id) {
-            bossId=id; eHp = (id === 1 ? 1000 : 3500); maxE = eHp; actCount=0;
-            document.getElementById('enemy-sprite').innerText = (id === 1 ? '👻' : '');
-            document.getElementById('roblox-sprite').style.display = (id === 2 ? 'block' : 'none');
+            eHp = id === 2 ? 3000 : 1000; maxE = eHp;
+            document.getElementById('enemy-sprite').innerText = id === 2 ? "🧱" : "👻";
             document.getElementById('screen-choice').style.display='none';
             document.getElementById('game-container').style.display='flex';
-            document.getElementById('disp-name').innerText=pName;
-            mode='MENU'; updateUI(); requestAnimationFrame(loop);
-            msg("* Бій почався!");
+            mode='MENU'; requestAnimationFrame(loop);
         }
 
-        function setMenu(i) { if(mode==='MENU') { menuIdx=i; [0,1,2,3].forEach(n=>document.getElementById('m'+n).classList.toggle('active', n===i)); playSound(440); } }
-        
+        function setMenu(i) { if(mode==='MENU') { menuIdx=i; [0,1,2,3].forEach(n=>document.getElementById('m'+n).classList.toggle('active', n===i)); }}
+
         function pressZ() {
             if(mode==='MENU') {
                 if(menuIdx===0) { mode='ATTACK'; document.getElementById('attack-bar').style.display='block'; sPos=0; }
-                else if(menuIdx===1) { actCount++; msg("* Ви дієте..."); next(); }
+                else if(menuIdx===1) { act++; msg("* Ви перевірили ворога."); next(); }
                 else if(menuIdx===2) { hp=Math.min(20, hp+10); msg("* +10 HP!"); updateUI(); next(); }
-                else if(menuIdx===3) { if(actCount>=3) { alert('WIN!'); location.reload(); } else { msg("* Неможливо."); next(); } }
-                playSound(880);
+                else if(menuIdx===3) { if(act>=3) { alert('МИР!'); location.reload(); } else next(); }
             } else if(mode==='ATTACK') {
-                let d = Math.abs(sPos-150)<25?500:100; eHp-=d;
+                let d = Math.abs(sPos-150)<20?500:100; eHp-=d;
                 document.getElementById('attack-bar').style.display='none';
                 msg("* УДАР: "+d); setTimeout(()=>eHp<=0?location.reload():enemyTurn(), 800);
             }
         }
 
         function msg(t) { document.getElementById('dialog').innerText=t; }
-        function next() { mode='BUSY'; setTimeout(enemyTurn, 800); }
+        function next() { mode='BUSY'; setTimeout(enemyTurn, 600); }
 
         function enemyTurn() {
             mode='DODGE'; px=142; py=62; document.getElementById('heart').style.display='block';
             let t=0;
-            const turnInterval = setInterval(() => {
-                t++; 
-                if(bossId===1) spawnTear(); else spawnWall();
-                if(t>40 || hp<=0) { 
-                    clearInterval(turnInterval); document.getElementById('heart').style.display='none'; 
-                    if(hp<=0) { alert('GAME OVER'); location.reload(); }
+            const turn = setInterval(() => {
+                t++; spawnWall();
+                if(t>30 || hp<=0) {
+                    clearInterval(turn); document.getElementById('heart').style.display='none';
+                    if(hp<=0) { alert('КІНЕЦЬ'); location.reload(); }
                     else { mode='MENU'; updateUI(); msg("* Ваш хід."); }
                 }
-            }, 150);
+            }, 200);
         }
 
         function spawnWall() {
             const w=document.createElement('div'); w.className='wall';
-            w.style.width='80px'; w.style.height='15px'; w.style.top=Math.random()*110+'px'; w.style.left='-80px';
+            w.style.width='70px'; w.style.height='15px'; w.style.top=Math.random()*110+'px'; w.style.left='-70px';
             document.getElementById('battle-screen').appendChild(w);
-            let x=-80; const m=setInterval(()=>{ 
-                x+=6; w.style.left=x+'px'; 
+            let x=-70; const m=setInterval(()=>{
+                x+=6; w.style.left=x+'px';
                 if(checkCol(w)){ hp-=4; w.remove(); clearInterval(m); updateUI(); }
-                if(x>300 || mode!=='DODGE'){ w.remove(); clearInterval(m); }
-            },30);
-        }
-
-        function spawnTear() {
-            const p=document.createElement('div'); p.className='tear';
-            p.style.left=Math.random()*280+'px'; p.style.top='-10px';
-            document.getElementById('battle-screen').appendChild(p);
-            let y=-10; const m=setInterval(()=>{ 
-                y+=5; p.style.top=y+'px'; 
-                if(checkCol(p)){ hp-=2; p.remove(); clearInterval(m); updateUI(); }
-                if(y>150 || mode!=='DODGE'){ p.remove(); clearInterval(m); }
+                if(x>300 || mode!=='DODGE') { w.remove(); clearInterval(m); }
             },30);
         }
 
@@ -211,22 +175,20 @@
         }
 
         function updateUI() { 
-            document.getElementById('hp-text').innerText=hp+"/20"; 
-            document.getElementById('boss-hp-fg').style.width=(eHp/maxE*100)+"%"; 
+            document.getElementById('hp-fill').style.width=(eHp/maxE*100)+"%"; 
         }
 
         function loop() {
             if(mode==='DODGE') {
                 if(keys.up && py > 2) py -= 4; if(keys.down && py < 122) py += 4;
                 if(keys.left && px > 2) px -= 4; if(keys.right && px < 282) px += 4;
-                const h = document.getElementById('heart');
-                h.style.left=px+'px'; h.style.top=py+'px';
+                heart.style.left=px+'px'; heart.style.top=py+'px';
             }
-            if(mode==='ATTACK') { sPos+=(10*sDir); if(sPos>288||sPos<0) sDir*=-1; document.getElementById('slider').style.left=sPos+'px'; }
+            if(mode==='ATTACK') { sPos+=(10*sDir); if(sPos>288||sPos<0) sDir*=-1; slider.style.left=sPos+'px'; }
             requestAnimationFrame(loop);
         }
 
-        window.addEventListener('keydown', e => { if(e.key.includes('Arrow')) keys[e.key.replace('Arrow','').toLowerCase()] = true; if(e.key.toLowerCase() === 'z') pressZ(); });
+        window.addEventListener('keydown', e => { if(e.key.includes('Arrow')) keys[e.key.replace('Arrow','').toLowerCase()] = true; if(e.key==='z') pressZ(); });
         window.addEventListener('keyup', e => { if(e.key.includes('Arrow')) keys[e.key.replace('Arrow','').toLowerCase()] = false; });
     </script>
 </body>
