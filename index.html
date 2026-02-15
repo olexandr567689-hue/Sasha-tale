@@ -1,0 +1,265 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Undertale Sasha - Custom Edition</title>
+    <style>
+        :root { --ut-red: #ff0000; --ut-yellow: #ffff00; --ut-green: #00ff00; --ut-blue: #4deeea; --ut-orange: #ffa500; }
+        body {
+            background-color: #000; color: #fff; margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex; flex-direction: column; align-items: center;
+            height: 100vh; overflow: hidden; touch-action: none; user-select: none;
+        }
+
+        /* Екран вибору імені */
+        #naming-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 200;
+        }
+        #name-input { background: none; border: none; border-bottom: 2px solid #fff; color: #fff; font-family: inherit; font-size: 24px; text-align: center; outline: none; margin: 20px; }
+
+        #boss-area { position: relative; margin-top: 15px; height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+        #enemy-sprite { font-size: 60px; position: relative; z-index: 1; transition: opacity 0.5s; }
+        
+        /* Анімація РОЗРІЗУ */
+        #slash { 
+            position: absolute; font-size: 80px; color: #fff; display: none; z-index: 10; 
+            top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none;
+            animation: slash-fade 0.4s steps(4);
+        }
+        @keyframes slash-fade { from { opacity: 1; transform: translate(-50%, -50%) scaleY(1.5); } to { opacity: 0; transform: translate(-50%, -50%) scaleY(0.2); } }
+
+        #battle-screen {
+            position: relative; border: 5px solid #fff; width: 280px; height: 140px; background: #000;
+            display: flex; padding: 15px; box-sizing: border-box; overflow: hidden; transition: transform 0.1s;
+        }
+        #heart { position: absolute; width: 14px; height: 14px; background: var(--ut-red); display: none; z-index: 10; border-radius: 2px; }
+        #dialog { width: 100%; font-size: 15px; line-height: 1.2; white-space: pre-wrap; }
+
+        #attack-bar { position:absolute; left:10px; top:10px; width:250px; height:110px; border:4px solid #fff; display:none; background: #000; }
+        #slider { position:absolute; left:0; top:0; width:10px; height:100%; background:#fff; box-shadow: 0 0 10px #fff; }
+
+        #stats-area { width: 280px; margin: 10px 0; font-size: 14px; }
+        #player-hp-bar { display: inline-block; width: 60px; height: 15px; background: var(--ut-red); position: relative; vertical-align: middle; }
+        #player-hp-fg { width: 100%; height: 100%; background: var(--ut-yellow); position: absolute; }
+        
+        /* Полоска МАНИ */
+        #mana-area { font-size: 12px; color: var(--ut-blue); margin-top: 2px; }
+        #mana-bar { display: inline-block; width: 100px; height: 8px; background: #002244; border: 1px solid var(--ut-blue); vertical-align: middle; }
+        #mana-fg { width: 0%; height: 100%; background: var(--ut-blue); transition: width 0.2s; }
+
+        #menu { display: flex; gap: 4px; width: 310px; margin-bottom: 10px; }
+        .btn-m { flex: 1; border: 2px solid var(--ut-orange); color: var(--ut-orange); text-align: center; padding: 5px 0; font-size: 10px; font-weight: bold; }
+        .btn-m.active { border-color: var(--ut-yellow); color: var(--ut-yellow); background: #332200; }
+
+        #controls { display: flex; width: 100%; justify-content: space-evenly; align-items: center; padding-bottom: 60px; }
+        .d-pad { display: grid; grid-template-columns: repeat(3, 55px); grid-template-rows: repeat(3, 55px); gap: 10px; }
+        .d-btn { background: #222; border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; border-radius: 12px; touch-action: none; }
+        #btn-z { width: 85px; height: 85px; background: #222; border: 4px solid var(--ut-yellow); color: var(--ut-yellow); border-radius: 50%; font-size: 30px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+
+        .particle { position: absolute; width: 4px; height: 4px; background: #fff; pointer-events: none; }
+        .bullet { position: absolute; border-radius: 50%; width: 10px; height: 10px; }
+        .shaking { animation: shake 0.1s infinite; }
+        @keyframes shake { 0% { transform: translate(3px, 3px); } 50% { transform: translate(-3px, -3px); } 100% { transform: translate(0, 0); } }
+    </style>
+</head>
+<body>
+
+    <div id="naming-screen">
+        <div style="font-size: 20px;">Назви людину.</div>
+        <input type="text" id="name-input" maxlength="6" placeholder="Name" autocomplete="off">
+        <div style="font-size: 14px; color: #888;">Натисніть Enter або Z щоб почати</div>
+    </div>
+
+    <div id="boss-area">
+        <div id="slash">⚡</div>
+        <div id="enemy-sprite">👻</div>
+    </div>
+
+    <div id="battle-screen">
+        <div id="heart"></div>
+        <div id="dialog"></div>
+        <div id="attack-bar"><div id="slider"></div></div>
+    </div>
+
+    <div id="stats-area">
+        <span id="char-name">PLAYER</span> LV 19 HP 
+        <div id="player-hp-bar"><div id="player-hp-fg"></div></div> <span id="hp-val">20/20</span>
+        <div id="mana-area">MANA <div id="mana-bar"><div id="mana-fg"></div></div></div>
+    </div>
+
+    <div id="menu">
+        <div class="btn-m active" id="m0">БИТВА</div>
+        <div class="btn-m" id="m1">ДІЯ</div>
+        <div class="btn-m" id="m2">МАНА</div>
+        <div class="btn-m" id="m3">ПОЩАДА</div>
+    </div>
+
+    <div id="controls">
+        <div class="d-pad">
+            <div class="d-btn" id="up" style="grid-column: 2; grid-row: 1;">▲</div>
+            <div class="d-btn" id="left" style="grid-column: 1; grid-row: 2;">◀</div>
+            <div class="d-btn" id="right" style="grid-column: 3; grid-row: 2;">▶</div>
+            <div class="d-btn" id="down" style="grid-column: 2; grid-row: 3;">▼</div>
+        </div>
+        <div id="btn-z">Z</div>
+    </div>
+
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let hp = 20, eHp = 400, mana = 0, phase = 'NAMING', menuIdx = 0, isMoving = false, musicStarted = false;
+        let px = 130, py = 60, sPos = 0, sDir = 1, playerName = "PLAYER";
+        const keys = { up: false, down: false, left: false, right: false };
+
+        function playSound(f, d, t='square', v=0.05) {
+            try {
+                const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+                o.type = t; o.frequency.value = f; g.gain.value = v;
+                o.connect(g); g.connect(audioCtx.destination);
+                o.start(); o.stop(audioCtx.currentTime + d);
+            } catch(e){}
+        }
+
+        function createParticles() {
+            const sprite = document.getElementById('enemy-sprite');
+            const rect = sprite.getBoundingClientRect();
+            for(let i=0; i<30; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = rect.left + 30 + 'px'; p.style.top = rect.top + 30 + 'px';
+                document.body.appendChild(p);
+                const vx = (Math.random()-0.5)*15, vy = (Math.random()-0.5)*15;
+                let op = 1;
+                const anim = setInterval(() => {
+                    p.style.left = parseFloat(p.style.left) + vx + 'px';
+                    p.style.top = parseFloat(p.style.top) + vy + 'px';
+                    op -= 0.05; p.style.opacity = op;
+                    if(op <= 0) { p.remove(); clearInterval(anim); }
+                }, 30);
+            }
+        }
+
+        function typeWriter(text) {
+            const el = document.getElementById('dialog'); el.innerText = ""; let i = 0;
+            const interval = setInterval(() => {
+                if(i < text.length) { el.innerText += text[i++]; playSound(110, 0.03, 'sine', 0.02); }
+                else clearInterval(interval);
+            }, 30);
+        }
+
+        const setupBtn = (id) => {
+            const el = document.getElementById(id);
+            const start = (e) => { 
+                e.preventDefault(); 
+                if(audioCtx.state === 'suspended') audioCtx.resume();
+                if(phase === 'NAMING' && id === 'btn-z') startGame();
+                else if(id === 'btn-z') pressZ(); 
+                else keys[id] = true; 
+            };
+            const end = (e) => { e.preventDefault(); keys[id] = false; };
+            el.addEventListener('touchstart', start); el.addEventListener('touchend', end);
+            el.addEventListener('mousedown', start); el.addEventListener('mouseup', end);
+        };
+        ['up','down','left','right','btn-z'].forEach(setupBtn);
+
+        function startGame() {
+            const input = document.getElementById('name-input').value.trim();
+            if(input) playerName = input.toUpperCase();
+            document.getElementById('char-name').innerText = playerName;
+            document.getElementById('naming-screen').style.display = 'none';
+            phase = 'MENU';
+            typeWriter("* Напстаблук заблокував шлях.");
+        }
+
+        function pressZ() {
+            if (phase === 'MENU') {
+                if (menuIdx === 0) { phase = 'ATTACK'; document.getElementById('dialog').innerText = ""; document.getElementById('attack-bar').style.display = 'block'; }
+                else if (menuIdx === 1) { phase = 'BUSY'; typeWriter("* Ти підморгнув. Привид зніяковів."); setTimeout(enemyTurn, 1500); }
+                else if (menuIdx === 2) { 
+                    if(mana >= 100) { mana = 0; hp = Math.min(20, hp + 10); updateUI(); typeWriter("* Мана зцілила тебе!"); setTimeout(enemyTurn, 1500); }
+                    else typeWriter("* Недостатньо мани!");
+                }
+                else if (menuIdx === 3) { phase = 'WIN'; document.getElementById('enemy-sprite').style.opacity = '0.3'; typeWriter("* Ви пощадили ворога."); }
+            } else if (phase === 'ATTACK') {
+                phase = 'BUSY';
+                document.getElementById('attack-bar').style.display = 'none';
+                const slash = document.getElementById('slash');
+                slash.style.display = 'block';
+                playSound(100, 0.3, 'sawtooth', 0.1);
+                
+                setTimeout(() => {
+                    slash.style.display = 'none';
+                    eHp -= 150;
+                    if(eHp <= 0) { createParticles(); document.getElementById('enemy-sprite').style.opacity = '0'; typeWriter("* Напстаблук розлетівся на пил."); }
+                    else enemyTurn();
+                }, 500);
+            }
+        }
+
+        function enemyTurn() {
+            phase = 'DODGE'; 
+            document.getElementById('dialog').innerText = ""; 
+            document.getElementById('heart').style.display = 'block';
+            px = 130; py = 60;
+            let timer = 100;
+            const iv = setInterval(() => {
+                if(timer % 12 === 0) spawnBullet();
+                if(--timer <= 0 || hp <= 0) {
+                    clearInterval(iv);
+                    if(hp > 0) { phase = 'MENU'; document.getElementById('heart').style.display = 'none'; typeWriter("* Твій хід."); }
+                }
+            }, 80);
+        }
+
+        function spawnBullet() {
+            const b = document.createElement('div');
+            b.className = 'bullet'; b.style.backgroundColor = '#fff';
+            let bx = Math.random() * 260, by = -10;
+            document.getElementById('battle-screen').appendChild(b);
+            const m = setInterval(() => {
+                by += 4; b.style.top = by + 'px'; b.style.left = bx + 'px';
+                const hr = heart.getBoundingClientRect(), br = b.getBoundingClientRect();
+                
+                // Накопичення мани за близькість
+                let dist = Math.hypot((hr.left - br.left), (hr.top - br.top));
+                if(dist < 40 && phase === 'DODGE') { mana = Math.min(100, mana + 0.5); updateUI(); }
+
+                if (!(br.left > hr.right || br.right < hr.left || br.top > hr.bottom || br.bottom < hr.top)) {
+                    hp--; updateUI(); 
+                    document.getElementById('battle-screen').classList.add('shaking');
+                    setTimeout(()=>document.getElementById('battle-screen').classList.remove('shaking'), 80);
+                    b.remove(); clearInterval(m);
+                }
+                if(by > 150 || phase !== 'DODGE') { b.remove(); clearInterval(m); }
+            }, 30);
+        }
+
+        function updateUI() {
+            document.getElementById('player-hp-fg').style.width = (hp/20*100)+'%';
+            document.getElementById('hp-val').innerText = hp + "/20";
+            document.getElementById('mana-fg').style.width = mana + "%";
+            if(hp <= 0) location.reload();
+        }
+
+        function main() {
+            if (phase === 'MENU') {
+                if (keys.left) { menuIdx = (menuIdx + 3) % 4; keys.left = false; playSound(400, 0.05); }
+                if (keys.right) { menuIdx = (menuIdx + 1) % 4; keys.right = false; playSound(400, 0.05); }
+                [0,1,2,3].forEach(i => document.getElementById('m'+i).classList.toggle('active', i === menuIdx));
+            }
+            if (phase === 'DODGE') {
+                if (keys.up && py > 5) py -= 5; if (keys.down && py < 120) py += 5;
+                if (keys.left && px > 5) px -= 5; if (keys.right && px < 260) px += 5;
+                heart.style.left = px + 'px'; heart.style.top = py + 'px';
+            }
+            if (phase === 'ATTACK') { sPos += (10 * sDir); if (sPos > 240 || sPos < 0) sDir *= -1; document.getElementById('slider').style.left = sPos + 'px'; }
+            requestAnimationFrame(main);
+        }
+        
+        main();
+        document.getElementById('name-input').addEventListener('keydown', (e) => { if(e.key === 'Enter') startGame(); });
+    </script>
+</body>
+</html>
