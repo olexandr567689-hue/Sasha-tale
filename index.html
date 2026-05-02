@@ -1,0 +1,329 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Master: Hardcore & Stylish</title>
+    <style>
+        :root {
+            --bg: #0f172a; --panel: #1e293b; --accent: #6366f1;
+            --gold: #fbbf24; --win: #10b981; --loss: #ef4444; --text: #f8fafc;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 180px; overflow-x: hidden; }
+        
+        /* --- КОНСТРУКТОР --- */
+        #setup-screen { position: fixed; inset: 0; background: #020617; z-index: 2000; padding: 25px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; }
+        h1 { text-align: center; color: var(--accent); margin-bottom: 10px; }
+        label { font-size: 0.9em; color: #94a3b8; margin-bottom: -10px; }
+        input, select { background: #334155; border: 1px solid var(--accent); color: white; padding: 12px; border-radius: 10px; font-size: 1em; outline: none; }
+        
+        /* --- ШАПКА --- */
+        .header { background: var(--panel); padding: 15px; text-align: center; border-bottom: 3px solid var(--accent); position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+        .nation-badge { display: inline-block; padding: 4px 10px; background: rgba(99, 102, 241, 0.2); border-radius: 20px; font-size: 0.75em; color: var(--accent); margin-bottom: 5px; font-weight: bold; }
+        .money { font-size: 2.6em; font-weight: 900; color: var(--gold); text-shadow: 0 0 15px rgba(251, 191, 36, 0.2); transition: color 0.3s; }
+        .danger { color: var(--loss) !important; animation: pulse 1s infinite; }
+        
+        .stats-row { display: flex; justify-content: center; gap: 15px; font-size: 0.85em; margin-top: 8px; color: #cbd5e1; }
+        
+        /* --- КОНТЕНТ --- */
+        .content { padding: 20px; max-width: 600px; margin: 0 auto; }
+        .section { display: none; animation: fadeIn 0.4s ease; }
+        .active { display: block; }
+
+        .card { background: var(--panel); border-radius: 16px; padding: 18px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        h3 { margin: 0 0 12px 0; color: var(--accent); font-size: 1.1em; display: flex; justify-content: space-between; }
+        
+        button { background: var(--accent); color: white; border: none; padding: 14px; border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 8px; font-size: 0.95em; }
+        button:active { transform: scale(0.97); }
+        button:disabled { background: #475569; opacity: 0.5; cursor: not-allowed; }
+        .btn-war { background: var(--loss); }
+        
+        /* --- БІРЖА (ГРАФІК) --- */
+        .chart-box { height: 100px; background: rgba(0,0,0,0.3); display: flex; align-items: flex-end; gap: 3px; padding: 5px; border-radius: 10px; margin: 15px 0; }
+        .bar { flex: 1; min-width: 5px; background: #94a3b8; transition: height 0.3s, background 0.3s; border-radius: 2px 2px 0 0; }
+        
+        /* --- НОВИНИ --- */
+        .news-box { position: fixed; bottom: 85px; left: 10px; right: 10px; height: 85px; background: #020617; border: 1px solid #334155; border-radius: 12px; padding: 10px; z-index: 900; overflow: hidden; font-family: monospace; font-size: 0.8em; }
+        .news-item { margin-bottom: 4px; border-left: 2px solid var(--accent); padding-left: 6px; }
+
+        /* --- НАВІГАЦІЯ --- */
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: var(--panel); display: flex; height: 75px; border-top: 1px solid rgba(255,255,255,0.1); z-index: 1000; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #64748b; font-weight: bold; font-size: 0.75em; cursor: pointer; }
+        .active-tab { color: var(--accent); border-top: 3px solid var(--accent); background: rgba(99, 102, 241, 0.05); }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div id="setup-screen">
+    <h1>🏗️ Створення Держави</h1>
+    
+    <label>Назва Імперії:</label>
+    <input type="text" id="s-name" placeholder="Наприклад: Нова Спарта">
+    
+    <label>Прапор:</label>
+    <select id="s-flag">
+        <option value="🇺🇦">🇺🇦 Україна (Стандарт)</option>
+        <option value="🇺🇸">🇺🇸 Західний стиль</option>
+        <option value="🇪🇺">🇪🇺 Європейський Союз</option>
+        <option value="🏴‍☠️">🏴‍☠️ Піратська Республіка</option>
+        <option value="🚩">🚩 Червоний Прапор</option>
+        <option value="👑">👑 Монархія</option>
+    </select>
+
+    <label>Ідеологія:</label>
+    <select id="s-ideo">
+        <option value="Капіталізм">Капіталізм (Ризик на біржі, високий дохід)</option>
+        <option value="Соціалізм">Соціалізм (Стабільність, менше податків)</option>
+        <option value="Мілітаризм">Мілітаризм (Сильна армія, дорогі реформи)</option>
+    </select>
+    
+    <label>Національна риса (Бонус):</label>
+    <select id="s-trait">
+        <option value="workers">🔨 Працьовиті (+15% доходу)</option>
+        <option value="warriors">⚔️ Войовничі (+20% сили)</option>
+        <option value="traders">📈 Трейдери (Менше комісія на біржі)</option>
+    </select>
+
+    <button onclick="startGame()" style="margin-top: 20px; font-size: 1.1em; background: var(--win);">ПРИЙНЯТИ КОНСТИТУЦІЮ 📜</button>
+</div>
+
+<div class="header">
+    <div class="nation-badge"><span id="u-flag"></span> <span id="u-name"></span></div>
+    <div class="money"><span id="gold">2500</span>$</div>
+    <div class="stats-row">
+        <span>💪 Сила: <b id="pwr">10</b></span>
+        <span>🔻 Витрати: <b id="upkeep" style="color:var(--loss)">0</b>/с</span>
+        <span>📈 Дохід: <b id="inc">0</b>/с</span>
+    </div>
+</div>
+
+<div class="content">
+    <div id="gov" class="section active">
+        <h3>🏛️ Економіка <span style="font-size:0.7em; opacity:0.7" id="u-ideo"></span></h3>
+        <div class="card">
+            <button onclick="upgradeSys()">Оновити Систему v<span id="v-lvl">1</span> (<span id="v-cost">3000</span>$)</button>
+        </div>
+        <div class="card">
+            <button onclick="buyB(1500, 60)">Малий бізнес (1500$)</button>
+            <button onclick="buyB(9000, 350)">Мега-Корпорація (9000$)</button>
+        </div>
+        <h3>🔫 Безпека</h3>
+        <div class="card" style="border-color: var(--loss);">
+            <div style="font-size: 0.8em; margin-bottom: 5px; color: #94a3b8;">Увага: Армія потребує грошей на утримання!</div>
+            <button class="btn-war" onclick="addA()">Мобілізація (+30 Сили) — 1200$</button>
+        </div>
+    </div>
+
+    <div id="market" class="section">
+        <h3>📊 Світовий Ринок</h3>
+        <div class="card" style="text-align: center;">
+            <div id="trend" style="font-weight: bold; font-size: 1.2em;">0.0%</div>
+            <div style="font-size: 3em; font-weight: 900; margin: 10px 0;"><span id="stock-price">100</span>$</div>
+            
+            <div class="chart-box" id="chart"></div>
+            
+            <div style="display: flex; gap: 10px;">
+                <button onclick="buyS()">КУПИТИ</button>
+                <button style="background: var(--win)" onclick="sellS()">ПРОДАТИ</button>
+            </div>
+            <p style="margin-top: 10px; font-size: 0.9em;">Акцій у портфелі: <b id="my-stocks" style="color:var(--accent)">0</b></p>
+        </div>
+    </div>
+
+    <div id="war" class="section">
+        <h3>🌍 Карта Експансії</h3>
+        <div id="targets"></div>
+    </div>
+</div>
+
+<div class="news-box">
+    <div style="color:var(--accent); font-weight:bold; font-size:0.9em; border-bottom:1px solid #334155; margin-bottom:5px;">📡 CNN (CENTRAL NATIONAL NEWS)</div>
+    <div id="news-feed"></div>
+</div>
+
+<nav class="nav-bar">
+    <div class="nav-item active-tab" onclick="tab('gov', this)">🏛️ УРЯД</div>
+    <div class="nav-item" onclick="tab('market', this)">📈 БІРЖА</div>
+    <div class="nav-item" onclick="tab('war', this)">⚔️ ВІЙНА</div>
+</nav>
+
+<script>
+let s = {
+    gold: 2500, inc: 10, pwr: 10, v: 1, vC: 3000,
+    stk: 100, lastStk: 100, myStk: 0, hist: [100, 100, 100],
+    owned: [],
+    name: "", flag: "", ideo: "", trait: "",
+    targets: [
+        {n:"Естонія", p:30, l:6000}, {n:"Польща", p:120, l:35000}, 
+        {n:"Україна", p:90, l:25000}, {n:"Німеччина", p:450, l:150000},
+        {n:"США", p:2500, l:2000000}
+    ]
+};
+
+function startGame() {
+    s.name = document.getElementById('s-name').value || "Моя Країна";
+    s.flag = document.getElementById('s-flag').value;
+    s.ideo = document.getElementById('s-ideo').value;
+    s.trait = document.getElementById('s-trait').value;
+
+    // Бонуси конструктора
+    if(s.trait === "workers") s.inc += 20;
+    if(s.trait === "warriors") s.pwr += 30;
+    
+    document.getElementById('setup-screen').style.display = 'none';
+    document.getElementById('u-name').innerText = s.name;
+    document.getElementById('u-flag').innerText = s.flag;
+    document.getElementById('u-ideo').innerText = s.ideo;
+    
+    postNews(`Державу "${s.name}" засновано! ${s.ideo} перемагає.`);
+    update();
+}
+
+function postNews(txt, type="neutral") {
+    const feed = document.getElementById('news-feed');
+    let color = "#cbd5e1";
+    if(type==="bad") color = "var(--loss)";
+    if(type==="good") color = "var(--win)";
+    
+    feed.innerHTML = `<div class="news-item" style="color:${color}">> ${txt}</div>` + feed.innerHTML;
+    if(feed.children.length > 3) feed.lastChild.remove();
+}
+
+function buyB(c, i) { 
+    if(s.gold >= c) { 
+        s.gold -= c; 
+        s.inc += (s.trait === "workers" ? i * 1.15 : i); // Бонус працьовитих
+        update(); 
+    } 
+}
+
+function addA() { 
+    let cost = 1200;
+    if(s.ideo === "Мілітаризм") cost = 1000; // Бонус мілітаризму
+    if(s.gold >= cost) { s.gold -= cost; s.pwr += 30; update(); } 
+}
+
+function upgradeSys() {
+    if(s.gold >= s.vC) {
+        s.gold -= s.vC; s.v++; s.inc *= 2.5; s.vC *= 5;
+        postNews(`РЕФОРМА: Рівень життя зріс до v${s.v}.0`, "good");
+        update();
+    }
+}
+
+function attack(n, p, l) {
+    if(s.pwr > p) {
+        s.gold += l; s.owned.push(n);
+        s.pwr -= Math.floor(p/3);
+        postNews(`ПЕРЕМОГА: ${n} приєднана до імперії!`, "good");
+    } else {
+        s.pwr = Math.floor(s.pwr/2);
+        postNews(`ПОРАЗКА: Армія розбита під стінами ${n}!`, "bad");
+    }
+    update();
+}
+
+function buyS() { if(s.gold >= s.stk) { s.gold -= s.stk; s.myStk++; update(); } }
+function sellS() { s.gold += s.myStk * s.stk; s.myStk = 0; postNews("БІРЖА: Активи продано."); update(); }
+
+function tab(id, el) {
+    document.querySelectorAll('.section').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active-tab'));
+    document.getElementById(id).classList.add('active');
+    el.classList.add('active-tab');
+}
+
+function updateChart() {
+    const box = document.getElementById('chart');
+    box.innerHTML = '';
+    s.hist.forEach((val, i) => {
+        let h = Math.min(100, val / 4);
+        let color = "#94a3b8";
+        if(i > 0) color = val >= s.hist[i-1] ? "var(--win)" : "var(--loss)";
+        box.innerHTML += `<div class="bar" style="height:${h}%; background:${color}"></div>`;
+    });
+}
+
+function update() {
+    document.getElementById('gold').innerText = Math.floor(s.gold);
+    document.getElementById('pwr').innerText = Math.floor(s.pwr);
+    document.getElementById('inc').innerText = Math.floor(s.inc);
+    document.getElementById('v-lvl').innerText = s.v;
+    document.getElementById('v-cost').innerText = s.vC;
+    document.getElementById('stock-price').innerText = s.stk;
+    document.getElementById('my-stocks').innerText = s.myStk;
+
+    // Утримання армії
+    let upkeep = Math.floor(s.pwr * 1.5); 
+    if(s.ideo === "Соціалізм") upkeep = Math.floor(upkeep * 0.8); // Знижка соціалізму
+    document.getElementById('upkeep').innerText = upkeep;
+
+    // Колір грошей
+    const moneyEl = document.querySelector('.money');
+    if(s.gold < 0) moneyEl.classList.add('danger');
+    else moneyEl.classList.remove('danger');
+
+    // Карта
+    const t = document.getElementById('targets');
+    t.innerHTML = '';
+    s.targets.forEach(c => {
+        if(!s.owned.includes(c.n)) {
+            t.innerHTML += `<div class="card"><div style="display:flex; justify-content:space-between; align-items:center"><span><b>${c.n}</b> (💪${c.p})</span><button style="width:70px; margin:0" class="btn-war" onclick="attack('${c.n}',${c.p},${c.l})">⚔️</button></div></div>`;
+        }
+    });
+}
+
+// --- ХАРДКОРНИЙ ЦИКЛ (Щосекунди) ---
+setInterval(() => {
+    // 1. Економіка
+    let upkeep = Math.floor(s.pwr * 1.5);
+    if(s.ideo === "Соціалізм") upkeep = Math.floor(upkeep * 0.8);
+    
+    let net = s.inc - upkeep;
+    s.gold += net;
+
+    // 2. Банкрутство (Революція)
+    if(s.gold < -1500) {
+        alert(`РЕВОЛЮЦІЯ!\nНарод повстав через борги.\nВаше правління закінчилося.`);
+        location.reload();
+    }
+
+    // 3. Випадкові події (Хардкор)
+    if(Math.random() > 0.96) {
+        const events = [
+            {t: "Корупція: Чиновники вкрали бюджет!", v: -Math.floor(s.gold*0.1), type:"bad"},
+            {t: "Епідемія: Бізнес зупинився.", v: 0, act: () => s.inc *= 0.9, type:"bad"},
+            {t: "Гуманітарна допомога ООН.", v: 500, type:"good"}
+        ];
+        let ev = events[Math.floor(Math.random()*events.length)];
+        s.gold += (ev.v || 0);
+        if(ev.act) ev.act();
+        postNews(ev.t, ev.type);
+    }
+
+    // 4. Біржа
+    let volatility = s.ideo === "Капіталізм" ? 60 : 30; // Капіталізм більше хитає
+    let change = (Math.random() * volatility - (volatility/2));
+    s.stk = Math.max(10, Math.floor(s.stk + change));
+    s.hist.push(s.stk);
+    if(s.hist.length > 20) s.hist.shift();
+    
+    let diff = ((s.stk - s.lastStk) / s.lastStk * 100).toFixed(1);
+    let tr = document.getElementById('trend');
+    tr.innerText = (change >= 0 ? "+" : "") + diff + "%";
+    tr.style.color = change >= 0 ? "var(--win)" : "var(--loss)";
+    s.lastStk = s.stk;
+
+    updateChart();
+    update();
+}, 1000);
+
+update();
+</script>
+</body>
+</html>
+
+958533
