@@ -2,206 +2,224 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Undertale Napstablook: Ultimate</title>
+    <title>CS2 Web Ultimate - Sasha Edition</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
-        body { background: #000; color: #fff; margin: 0; font-family: 'DotGothic16', sans-serif; overflow: hidden; touch-action: none; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-        canvas { border: 4px solid #fff; background: #000; max-width: 95vw; max-height: 50vh; cursor: crosshair; }
-        #ui { width: 320px; margin-top: 10px; }
-        .stats { font-size: 18px; margin-bottom: 5px; display: flex; justify-content: space-between; }
-        .hp-bar { width: 100px; height: 15px; background: red; border: 2px solid #fff; position: relative; }
-        .hp-fill { height: 100%; background: #ffff00; transition: width 0.3s; }
-        #menu { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 320px; margin-top: 15px; }
-        .btn { border: 2px solid #ffa500; color: #ffa500; padding: 10px; text-align: center; cursor: pointer; user-select: none; }
-        .btn.active { background: #fff; color: #000; border-color: #fff; }
-        #dialog-box { width: 300px; height: 80px; border: 4px solid #fff; padding: 10px; margin-top: 10px; font-size: 16px; position: relative; overflow: hidden; }
-        #start-screen { position: fixed; inset: 0; background: #000; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        button#start { background: none; border: 3px solid #fff; color: #fff; padding: 20px 40px; font-family: inherit; font-size: 24px; cursor: pointer; }
+        body { margin: 0; overflow: hidden; font-family: 'Arial', sans-serif; background: #000; color: white; }
+        
+        /* Інтерфейс меню */
+        #ui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.8); z-index: 10; }
+        .window { background: #232730; padding: 30px; border-radius: 10px; border: 1px solid #d89b00; text-align: center; min-width: 300px; }
+        
+        /* Кнопки */
+        button { background: #d89b00; color: white; border: none; padding: 12px 20px; margin: 10px; cursor: pointer; font-weight: bold; text-transform: uppercase; border-radius: 4px; }
+        button:hover { background: #ffb800; }
+        button:disabled { background: #555; }
+
+        /* Ігрові показники */
+        #game-hud { position: absolute; bottom: 20px; left: 20px; display: none; z-index: 5; pointer-events: none; }
+        .stat-box { background: rgba(0,0,0,0.6); padding: 10px 20px; margin-bottom: 5px; border-left: 5px solid #d89b00; }
+        
+        #crosshair { position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; border: 2px solid #0f0; border-radius: 50%; transform: translate(-50%, -50%); display: none; }
+
+        /* Магазин та Кейси */
+        .hidden { display: none !important; }
+        .inventory-list { text-align: left; max-height: 100px; overflow-y: auto; background: #111; padding: 5px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-<div id="start-screen">
-    <div style="font-size: 60px; margin-bottom: 20px;">👻</div>
-    <button id="start">ПОЧАТИ БІЙ</button>
-</div>
+    <div id="ui-overlay">
+        <div id="auth-window" class="window">
+            <h1>CS2 WEB PROJECT</h1>
+            <input type="text" id="username" placeholder="Твій нікнейм" style="padding: 10px; width: 80%;"><br>
+            <button onclick="login()">Увійти в аккаунт</button>
+        </div>
 
-<div id="boss-sprite" style="font-size: 70px; margin-bottom: 10px; transition: 0.5s;">👻</div>
+        <div id="main-menu" class="window hidden">
+            <h2 id="welcome-text">Привіт, Боєць!</h2>
+            <p>Баланс: <span id="user-balance">1000</span>$</p>
+            <button onclick="startGame('sp')" style="background: #4CAF50;">Одиночний режим</button>
+            <button onclick="alert('Підключення до серверів GitHub...')">Мультиплеєр (Beta)</button>
+            <button onclick="toggleWindow('case-window')">Кейси</button>
+            <button onclick="toggleWindow('shop-window')">Закупка (Магазин)</button>
+        </div>
 
-<canvas id="game"></canvas>
+        <div id="case-window" class="window hidden">
+            <h2>Кейс "Revolution"</h2>
+            <p>Ціна: $250</p>
+            <button onclick="openCase()">Відкрити</button>
+            <div class="inventory-list" id="inv-display">Твій інвентар порожній</div>
+            <button onclick="toggleWindow('main-menu')" style="background: #666;">Назад</button>
+        </div>
 
-<div id="ui">
-    <div class="stats">
-        <span>SASHA LV 19</span>
-        <div style="display:flex; align-items:center;">HP <div class="hp-bar"><div id="hp-f" class="hp-fill"></div></div></div>
-        <span id="hp-t">20/20</span>
+        <div id="shop-window" class="window hidden">
+            <h2>Закупка зброї</h2>
+            <button onclick="buyWeapon('AK-47', 2700)">AK-47 ($2700)</button>
+            <button onclick="buyWeapon('AWP', 4750)">AWP ($4750)</button>
+            <button onclick="buyWeapon('Deagle', 700)">Deagle ($700)</button>
+            <br>
+            <button onclick="toggleWindow('main-menu')" style="background: #666;">Назад</button>
+        </div>
     </div>
-    <div id="dialog-box">* Напстаблук виглядає сором'язливим.</div>
-    <div id="menu">
-        <div class="btn active" id="b0">БИТВА</div>
-        <div class="btn" id="b1">ДІЯ</div>
-        <div class="btn" id="b2">ПРЕДМЕТ</div>
-        <div class="btn" id="b3">ПОЩАДА</div>
+
+    <div id="game-hud">
+        <div class="stat-box">Здоров'я: 100</div>
+        <div class="stat-box">Зброя: <span id="current-weapon">Ніж</span></div>
+        <div class="stat-box">Гроші: <span id="hud-money">0</span>$</div>
+        <button onclick="stopGame()" style="pointer-events: auto;">Вийти (ESC)</button>
     </div>
-</div>
+    <div id="crosshair"></div>
 
-<script>
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
-const hpF = document.getElementById('hp-f');
-const hpT = document.getElementById('hp-t');
-const diag = document.getElementById('dialog-box');
+    <script>
+        // ДАНІ ГРАВЦЯ
+        let userData = {
+            name: "",
+            balance: 1000,
+            inventory: [],
+            currentWeapon: "Ніж"
+        };
 
-let width = 320, height = 160;
-canvas.width = width; canvas.height = height;
+        // 3D ЗМІННІ
+        let scene, camera, renderer, bot;
+        let isPlaying = false;
 
-let state = 'MENU'; // MENU, ATTACKING, DODGING, DIALOG
-let menuIdx = 0;
-let hp = 20, eHp = 100;
-let player = { x: 160, y: 80, size: 12 };
-let bullets = [];
-let audio;
+        // ЛОГІКА АККАУНТА
+        function login() {
+            const name = document.getElementById('username').value;
+            if (name.length < 2) return alert("Введи нормальне ім'я!");
+            
+            // Завантаження з пам'яті (якщо є)
+            const saved = localStorage.getItem('cs2_user_' + name);
+            if (saved) {
+                userData = JSON.parse(saved);
+            } else {
+                userData.name = name;
+                saveData();
+            }
 
-// --- AUDIO ---
-function initAudio() {
-    audio = new (window.AudioContext || window.webkitAudioContext)();
-}
-function beep(f, d, t='square', v=0.05) {
-    if(!audio) return;
-    let o = audio.createOscillator(); let g = audio.createGain();
-    o.type = t; o.frequency.value = f; g.gain.value = v;
-    o.connect(g); g.connect(audio.destination);
-    o.start(); o.stop(audio.currentTime + d);
-}
+            document.getElementById('welcome-text').innerText = "Привіт, " + userData.name;
+            document.getElementById('user-balance').innerText = userData.balance;
+            toggleWindow('main-menu');
+            updateInventoryUI();
+        }
 
-// --- LOGIC ---
-function typeWriter(txt) {
-    diag.innerHTML = ""; let i = 0;
-    let timer = setInterval(() => {
-        if(i < txt.length) { diag.innerHTML += txt[i++]; beep(150, 0.05, 'sine'); }
-        else clearInterval(timer);
-    }, 30);
-}
+        function saveData() {
+            localStorage.setItem('cs2_user_' + userData.name, JSON.stringify(userData));
+        }
 
-function startEnemyTurn() {
-    state = 'DODGING';
-    bullets = [];
-    let turnTimer = 0;
-    let turnInterval = setInterval(() => {
-        if(state !== 'DODGING') { clearInterval(turnInterval); return; }
-        turnTimer++;
-        
-        // Різні типи атак кожні 2 секунди
-        if(turnTimer % 10 === 0) {
-            let pattern = Math.floor(Math.random() * 3);
-            if(pattern === 0) { // Злива сліз
-                bullets.push({x: Math.random()*width, y: -10, vx: 0, vy: 3, s: 5});
-            } else if(pattern === 1) { // Спіраль
-                let ang = turnTimer * 0.5;
-                bullets.push({x: 160, y: 80, vx: Math.cos(ang)*2, vy: Math.sin(ang)*2, s: 4});
-            } else { // Бокові атаки
-                bullets.push({x: -10, y: Math.random()*height, vx: 2.5, vy: 0, s: 6});
+        function toggleWindow(id) {
+            document.querySelectorAll('.window').forEach(w => w.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        // КЕЙСИ
+        const skins = ["M4A4 | Temukau", "AK-47 | Vulcan", "Knife | Doppler", "USP-S | Printstream"];
+        function openCase() {
+            if (userData.balance >= 250) {
+                userData.balance -= 250;
+                let skin = skins[Math.floor(Math.random() * skins.length)];
+                userData.inventory.push(skin);
+                alert("Випало: " + skin);
+                saveData();
+                updateInventoryUI();
+                document.getElementById('user-balance').innerText = userData.balance;
+            } else {
+                alert("Мало грошей!");
             }
         }
 
-        if(turnTimer > 80) { // Кінець ходу ворога
-            clearInterval(turnInterval);
-            state = 'MENU';
-            typeWriter("* Напстаблук зітхає...");
+        function updateInventoryUI() {
+            const display = document.getElementById('inv-display');
+            display.innerText = userData.inventory.length > 0 ? userData.inventory.join(", ") : "Порожньо";
         }
-    }, 100);
-}
 
-function handleInput(tx, ty) {
-    let rect = canvas.getBoundingClientRect();
-    let sx = width / rect.width;
-    let sy = height / rect.height;
-    player.x = (tx - rect.left) * sx;
-    player.y = (ty - rect.top) * sy;
-}
-
-// Керування
-canvas.addEventListener('touchmove', e => { e.preventDefault(); handleInput(e.touches[0].clientX, e.touches[0].clientY); }, {passive:false});
-canvas.addEventListener('mousemove', e => { if(e.buttons) handleInput(e.clientX, e.clientY); });
-
-window.addEventListener('keydown', e => {
-    if(state === 'MENU') {
-        if(e.key === 'ArrowLeft') menuIdx = (menuIdx + 3) % 4;
-        if(e.key === 'ArrowRight') menuIdx = (menuIdx + 1) % 4;
-        if(e.key.toLowerCase() === 'z') selectMenu();
-        updateMenuUI();
-    }
-});
-
-function updateMenuUI() {
-    document.querySelectorAll('.btn').forEach((b, i) => b.classList.toggle('active', i === menuIdx));
-}
-
-document.querySelectorAll('.btn').forEach((b, i) => {
-    b.onclick = () => { menuIdx = i; selectMenu(); };
-});
-
-function selectMenu() {
-    if(state !== 'MENU') return;
-    beep(400, 0.1);
-    if(menuIdx === 0) { // Бій
-        typeWriter("* Твій удар... (Miss!)");
-        setTimeout(startEnemyTurn, 1500);
-    } else if(menuIdx === 1) { // Дія
-        typeWriter("* Ти підбадьорив Напстаблука. Він трохи посміхнувся.");
-        setTimeout(startEnemyTurn, 2000);
-    } else if(menuIdx === 3) { // Пощада
-        typeWriter("* Ви перемогли Напстаблука (Мирно)!");
-        setTimeout(() => location.reload(), 3000);
-    } else {
-        typeWriter("* Ти з'їв сендвіч. +0 HP.");
-        setTimeout(startEnemyTurn, 1500);
-    }
-}
-
-// --- GAME LOOP ---
-function draw() {
-    ctx.fillStyle = 'black';
-    ctx.fillRect(0, 0, width, height);
-
-    if(state === 'DODGING') {
-        // Малюємо серце
-        ctx.fillStyle = 'red';
-        ctx.beginPath();
-        let {x, y, size} = player;
-        ctx.moveTo(x, y);
-        ctx.bezierCurveTo(x-size, y-size, x-size, y+size, x, y+size);
-        ctx.bezierCurveTo(x+size, y+size, x+size, y-size, x, y);
-        ctx.fill();
-
-        // Малюємо і перевіряємо кулі
-        ctx.fillStyle = 'white';
-        bullets.forEach((b, i) => {
-            b.x += b.vx; b.y += b.vy;
-            ctx.beginPath(); ctx.arc(b.x, b.y, b.s, 0, Math.PI*2); ctx.fill();
-
-            // Колізія
-            let d = Math.hypot(player.x - b.x, player.y - b.y);
-            if(d < player.size) {
-                hp = Math.max(0, hp - 0.5);
-                hpF.style.width = (hp/20*100)+'%';
-                hpT.innerText = Math.ceil(hp)+'/20';
-                beep(50, 0.1, 'sawtooth', 0.1);
-                if(hp <= 0) location.reload();
+        // МАГАЗИН
+        function buyWeapon(name, price) {
+            if (userData.balance >= price) {
+                userData.balance -= price;
+                userData.currentWeapon = name;
+                alert("Куплено: " + name);
+                saveData();
+                document.getElementById('user-balance').innerText = userData.balance;
+                document.getElementById('current-weapon').innerText = name;
+            } else {
+                alert("Грошей нема, але ви тримайтесь!");
             }
+        }
+
+        // 3D ГРА (THREE.JS)
+        function init3D() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87ceeb); // Блакитне небо
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            // Підлога
+            const floorGeo = new THREE.PlaneGeometry(100, 100);
+            const floorMat = new THREE.MeshStandardMaterial({color: 0x555555});
+            const floor = new THREE.Mesh(floorGeo, floorMat);
+            floor.rotation.x = -Math.PI/2;
+            scene.add(floor);
+
+            // Світло
+            const light = new THREE.DirectionalLight(0xffffff, 1);
+            light.position.set(5, 10, 7);
+            scene.add(light);
+            scene.add(new THREE.AmbientLight(0x404040));
+
+            // Бот (складений з блоків)
+            bot = new THREE.Group();
+            const body = new THREE.Mesh(new THREE.BoxGeometry(1, 1.5, 0.5), new THREE.MeshStandardMaterial({color: 0x0000ff}));
+            const head = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshStandardMaterial({color: 0xffdbac}));
+            head.position.y = 1;
+            bot.add(body); bot.add(head);
+            bot.position.set(0, 0.75, -10);
+            scene.add(bot);
+
+            camera.position.y = 1.6; // Ріст гравця
+        }
+
+        function startGame(mode) {
+            isPlaying = true;
+            document.getElementById('ui-overlay').style.display = 'none';
+            document.getElementById('game-hud').style.display = 'block';
+            document.getElementById('crosshair').style.display = 'block';
+            document.getElementById('hud-money').innerText = userData.balance;
+            document.getElementById('current-weapon').innerText = userData.currentWeapon;
+            
+            if (!scene) init3D();
+            animate();
+        }
+
+        function stopGame() {
+            isPlaying = false;
+            document.getElementById('ui-overlay').style.display = 'flex';
+            document.getElementById('game-hud').style.display = 'none';
+            document.getElementById('crosshair').style.display = 'none';
+            toggleWindow('main-menu');
+        }
+
+        function animate() {
+            if (!isPlaying) return;
+            requestAnimationFrame(animate);
+            
+            // Бот трохи рухається
+            bot.position.x = Math.sin(Date.now() * 0.002) * 5;
+            
+            renderer.render(scene, camera);
+        }
+
+        // Постріл
+        window.addEventListener('mousedown', () => {
+            if (!isPlaying) return;
+            // Тут можна додати логіку влучання (Raycaster), як у попередньому коді
+            console.log("Постріл з " + userData.currentWeapon);
         });
-    }
 
-    requestAnimationFrame(draw);
-}
-
-document.getElementById('start').onclick = () => {
-    initAudio();
-    document.getElementById('start-screen').style.display = 'none';
-    typeWriter("* Напстаблук загороджує шлях!");
-    draw();
-};
-</script>
+    </script>
 </body>
 </html>
