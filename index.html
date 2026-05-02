@@ -3,189 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CS2 Web: Arena Edition</title>
+    <title>CS2 Web Alpha v2</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; touch-action: none; }
+        :root { --accent: #d89b00; --bg: #121418; }
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Arial', sans-serif; color: white; touch-action: none; }
         
-        /* МЕНЮ ТА РЕЄСТРАЦІЯ */
-        #ui-layer { position: absolute; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.85); }
-        .menu-card { background: #1a1d23; border: 2px solid #d89b00; border-radius: 15px; padding: 25px; width: 85%; max-width: 350px; text-align: center; color: white; }
-        input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 5px; border: none; font-size: 16px; }
-        button { background: #d89b00; color: white; border: none; padding: 12px; margin: 5px 0; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; }
-        
-        /* ІГРОВИЙ ІНТЕРФЕЙС (HUD) */
-        #hud { position: absolute; top: 10px; left: 10px; z-index: 10; color: white; display: none; pointer-events: none; }
-        .stat { background: rgba(0,0,0,0.6); padding: 5px 12px; border-radius: 4px; margin-bottom: 4px; border-left: 3px solid #d89b00; }
-        
-        #crosshair { position: absolute; top: 50%; left: 50%; width: 16px; height: 16px; border: 2px solid #0f0; border-radius: 50%; transform: translate(-50%, -50%); display: none; z-index: 50; }
+        /* КЕЙС-РУЛЕТКА */
+        #case-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .roulette-container { width: 300px; height: 80px; border: 2px solid var(--accent); overflow: hidden; position: relative; background: #1a1d23; border-radius: 10px; }
+        #roulette-track { display: flex; position: absolute; left: 0; transition: all 3s cubic-bezier(0.1, 0, 0.1, 1); }
+        .roulette-item { min-width: 100px; height: 80px; display: flex; align-items: center; justify-content: center; font-size: 10px; text-align: center; border-right: 1px solid #333; padding: 5px; box-sizing: border-box; }
+        .pointer { position: absolute; top: 0; left: 50%; width: 2px; height: 100%; background: red; z-index: 10; }
 
-        /* МОБІЛЬНЕ КЕРУВАННЯ */
-        #touch-controls { position: absolute; inset: 0; display: none; z-index: 20; }
-        .fire-zone { position: absolute; bottom: 40px; right: 30px; width: 80px; height: 80px; background: rgba(255,0,0,0.3); border: 3px solid red; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
-        .move-zone { position: absolute; bottom: 40px; left: 30px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; border: 2px dashed #aaa; }
+        /* HUD */
+        #hud { position: absolute; top: 20px; left: 20px; z-index: 10; pointer-events: none; }
+        .stat-badge { background: rgba(0,0,0,0.7); padding: 8px 15px; border-radius: 5px; margin-bottom: 5px; border-left: 4px solid var(--accent); font-weight: bold; }
+        #kill-feed { position: absolute; top: 20px; right: 20px; text-align: right; color: var(--accent); font-weight: bold; }
+
+        /* КЕРУВАННЯ */
+        #ui-main { position: absolute; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.8); }
+        .menu-win { background: var(--bg); padding: 30px; border-radius: 20px; border: 1px solid var(--accent); text-align: center; width: 80%; max-width: 400px; }
+        button { background: var(--accent); color: white; border: none; padding: 15px; margin: 5px 0; width: 100%; border-radius: 10px; font-weight: bold; font-size: 16px; }
+        
+        #controls { position: absolute; inset: 0; display: none; z-index: 50; }
+        .fire-btn { position: absolute; bottom: 50px; right: 50px; width: 90px; height: 90px; background: rgba(255,0,0,0.5); border-radius: 50%; border: 4px solid white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        #crosshair { position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; border: 2px solid lime; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; }
 
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <div id="ui-layer">
-        <div id="auth-box" class="menu-card">
-            <h2>CS2 WEB ARENA</h2>
-            <input type="text" id="nick" placeholder="Введіть нікнейм">
-            <button onclick="app.login()">УВІЙТИ</button>
+    <div id="ui-main">
+        <div class="menu-win">
+            <h1 style="color: var(--accent); margin-top:0;">CS2 WEB PRO</h1>
+            <div id="auth-section">
+                <input type="text" id="username" placeholder="Твій Нік" style="width:90%; padding:15px; margin-bottom:10px; border-radius:8px; border:none;">
+                <button onclick="game.login()">УВІЙТИ</button>
+            </div>
+            <div id="main-menu" class="hidden">
+                <p>Гроші: $<span id="money-display">1000</span></p>
+                <button onclick="game.start()" style="background:#28a745">В БІЙ</button>
+                <button onclick="game.showCases()">КЕЙСИ</button>
+                <button onclick="game.showShop()">МАГАЗИН ЗБРОЇ</button>
+            </div>
         </div>
+    </div>
 
-        <div id="menu-box" class="menu-card hidden">
-            <h3 id="user-tag">Боєць</h3>
-            <p>Баланс: <span id="balance">1000</span>$</p>
-            <button onclick="app.start()" style="background: #28a745;">ГРАТИ НА КАРТІ</button>
-            <button onclick="app.openCase()">ВІДКРИТИ КЕЙС (250$)</button>
-            <button onclick="app.buyWeapon('AK-47', 2700)">КУПИТИ AK-47 (2700$)</button>
-            <p style="font-size: 10px;" id="inventory">Інвентар: порожньо</p>
+    <div id="case-overlay">
+        <h2 id="case-status">Відкриття...</h2>
+        <div class="roulette-container">
+            <div class="pointer"></div>
+            <div id="roulette-track"></div>
         </div>
+        <button onclick="document.getElementById('case-overlay').style.display='none'" id="case-close-btn" class="hidden" style="width:200px; margin-top:20px;">ОК</button>
     </div>
 
     <div id="hud">
-        <div class="stat">HP: 100</div>
-        <div class="stat">Гроші: <span id="hud-money">1000</span>$</div>
-        <div class="stat">Зброя: <span id="hud-weapon">Ніж</span></div>
+        <div class="stat-badge">HP: 100</div>
+        <div class="stat-badge">ЗБРОЯ: <span id="hud-wpn">Ніж</span></div>
+        <div class="stat-badge">ГРОШІ: $<span id="hud-money">1000</span></div>
     </div>
+    <div id="kill-feed"></div>
     <div id="crosshair"></div>
 
-    <div id="touch-controls">
-        <div class="move-zone"></div>
-        <div class="fire-zone" id="btn-fire">FIRE</div>
-        <button onclick="location.reload()" style="position:absolute; top:10px; right:10px; width:40px;">X</button>
+    <div id="controls">
+        <div id="touch-move" style="position:absolute; bottom:0; left:0; width:50%; height:70%;"></div>
+        <div id="touch-look" style="position:absolute; bottom:0; right:0; width:50%; height:100%;"></div>
+        <div class="fire-btn" id="fire-trigger">FIRE</div>
+        <button onclick="location.reload()" style="position:absolute; top:10px; right:10px; width:50px;">X</button>
     </div>
 
     <script>
-        const app = {
-            data: { name: "", balance: 1000, inventory: [], weapon: "Ніж" },
-            scene: null, camera: null, renderer: null, bots: [],
+        const game = {
+            state: { name: "Sasha", money: 5000, inventory: [], weapon: {name: "Glock", dmg: 20, speed: 200} },
+            weapons: {
+                "AK-47": {name: "AK-47", dmg: 40, speed: 120, price: 2700, color: 0x442200},
+                "AWP": {name: "AWP", dmg: 100, speed: 1000, price: 4750, color: 0x004400},
+                "Deagle": {name: "Deagle", dmg: 60, speed: 500, price: 700, color: 0x777777}
+            },
+            skins: ["Dragon Lore", "Asimov", "Printstream", "Neon Rider", "Slate", "Sand Dune"],
             
             login() {
-                const n = document.getElementById('nick').value;
-                if(!n) return;
-                const saved = localStorage.getItem('cs_v3_'+n);
-                this.data = saved ? JSON.parse(saved) : {...this.data, name: n};
+                const n = document.getElementById('username').value;
+                if(n) this.state.name = n;
+                document.getElementById('auth-section').classList.add('hidden');
+                document.getElementById('main-menu').classList.remove('hidden');
                 this.updateUI();
-                document.getElementById('auth-box').classList.add('hidden');
-                document.getElementById('menu-box').classList.remove('hidden');
             },
 
             updateUI() {
-                document.getElementById('user-tag').innerText = "Гравець: " + this.data.name;
-                document.getElementById('balance').innerText = this.data.balance;
-                document.getElementById('hud-money').innerText = this.data.balance;
-                document.getElementById('hud-weapon').innerText = this.data.weapon;
-                document.getElementById('inventory').innerText = "Скіни: " + (this.data.inventory.join(", ") || "немає");
-                localStorage.setItem('cs_v3_'+this.data.name, JSON.stringify(this.data));
+                document.getElementById('money-display').innerText = this.state.money;
+                document.getElementById('hud-money').innerText = this.state.money;
+                document.getElementById('hud-wpn').innerText = this.state.weapon.name;
             },
 
-            openCase() {
-                if(this.data.balance >= 250) {
-                    this.data.balance -= 250;
-                    const skins = ["AK-47 | Asimov", "M4A1 | Hyper Beast", "Karambit | Tiger"];
-                    this.data.inventory.push(skins[Math.floor(Math.random()*skins.length)]);
-                    this.updateUI();
-                }
-            },
-
-            buyWeapon(name, price) {
-                if(this.data.balance >= price) {
-                    this.data.balance -= price;
-                    this.data.weapon = name;
-                    this.updateUI();
-                }
-            },
-
-            initMap() {
-                this.scene = new THREE.Scene();
-                this.scene.background = new THREE.Color(0x87ceeb);
-                this.camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+            showCases() {
+                if(this.state.money < 250) return alert("Мало грошей!");
+                this.state.money -= 250;
+                this.updateUI();
                 
-                this.renderer = new THREE.WebGLRenderer({ antialias: true });
+                const overlay = document.getElementById('case-overlay');
+                const track = document.getElementById('roulette-track');
+                const closeBtn = document.getElementById('case-close-btn');
+                
+                overlay.style.display = 'flex';
+                closeBtn.classList.add('hidden');
+                track.style.transition = 'none';
+                track.style.left = '0px';
+                
+                // Генеруємо стрічку скінів
+                track.innerHTML = '';
+                for(let i=0; i<30; i++) {
+                    const item = document.createElement('div');
+                    item.className = 'roulette-item';
+                    item.innerText = this.skins[Math.floor(Math.random()*this.skins.length)];
+                    item.style.background = `hsl(${Math.random()*360}, 50%, 30%)`;
+                    track.appendChild(item);
+                }
+
+                // Запускаємо анімацію
+                setTimeout(() => {
+                    track.style.transition = 'all 4s cubic-bezier(0.1, 0, 0.1, 1)';
+                    const finalPos = -(25 * 100) + (Math.random() * 80);
+                    track.style.left = finalPos + 'px';
+                }, 100);
+
+                setTimeout(() => {
+                    document.getElementById('case-status').innerText = "Вам випало!";
+                    closeBtn.classList.remove('hidden');
+                }, 4100);
+            },
+
+            showShop() {
+                let wName = prompt("Що купити? (AK-47, AWP, Deagle)");
+                if(this.weapons[wName]) {
+                    if(this.state.money >= this.weapons[wName].price) {
+                        this.state.money -= this.weapons[wName].price;
+                        this.state.weapon = this.weapons[wName];
+                        this.updateUI();
+                        alert("Куплено!");
+                    } else alert("Нема грошей!");
+                }
+            },
+
+            // 3D ЯДРО
+            init3D() {
+                this.scene = new THREE.Scene();
+                this.scene.background = new THREE.Color(0x22252a);
+                this.camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+                this.renderer = new THREE.WebGLRenderer({antialias: true});
                 this.renderer.setSize(window.innerWidth, window.innerHeight);
                 document.body.appendChild(this.renderer.domElement);
 
-                // Підлога (Карта)
-                const ground = new THREE.Mesh(new THREE.PlaneGeometry(50, 50), new THREE.MeshStandardMaterial({color: 0x333333}));
-                ground.rotation.x = -Math.PI/2;
-                this.scene.add(ground);
-
-                // Перешкоди (Ящики)
-                for(let i=0; i<10; i++) {
-                    const box = new THREE.Mesh(new THREE.BoxGeometry(2,2,2), new THREE.MeshStandardMaterial({color: 0x8B4513}));
-                    box.position.set(Math.random()*30-15, 1, Math.random()*30-15);
-                    this.scene.add(box);
-                }
-
-                // Світло
-                const sun = new THREE.DirectionalLight(0xffffff, 1);
-                sun.position.set(5, 10, 5);
+                // Карта
+                const grid = new THREE.GridHelper(100, 50, 0x444444, 0x222222);
+                this.scene.add(grid);
+                
+                const light = new THREE.AmbientLight(0xffffff, 0.6);
+                this.scene.add(light);
+                const sun = new THREE.PointLight(0xffffff, 1);
+                sun.position.set(10, 20, 10);
                 this.scene.add(sun);
-                this.scene.add(new THREE.AmbientLight(0x404040));
 
-                // Створення ботів (імітація гравців)
-                for(let i=0; i<3; i++) this.spawnBot();
+                this.bots = [];
+                for(let i=0; i<5; i++) this.spawnBot();
 
                 this.camera.position.y = 1.7;
             },
 
             spawnBot() {
-                const bot = new THREE.Group();
-                const body = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.6, 0.5), new THREE.MeshStandardMaterial({color: 0xff0000}));
+                const group = new THREE.Group();
+                const body = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.4, 0.4), new THREE.MeshStandardMaterial({color: 0x2244aa}));
                 const head = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4), new THREE.MeshStandardMaterial({color: 0xffdbac}));
-                head.position.y = 1;
-                bot.add(body); bot.add(head);
-                bot.position.set(Math.random()*20-10, 0.8, -Math.random()*20);
-                this.scene.add(bot);
-                this.bots.push({obj: bot, dir: Math.random() * Math.PI * 2});
+                head.position.y = 0.9;
+                group.add(body); group.add(head);
+                group.position.set(Math.random()*40-20, 0.7, -Math.random()*40-5);
+                this.scene.add(group);
+                this.bots.push({obj: group, hp: 100});
             },
 
             start() {
-                document.getElementById('ui-layer').style.display = 'none';
-                document.getElementById('hud').style.display = 'block';
-                document.getElementById('crosshair').style.display = 'block';
-                document.getElementById('touch-controls').style.display = 'block';
-                if(!this.scene) this.initMap();
-                this.animate();
+                document.getElementById('ui-main').style.display = 'none';
+                document.getElementById('controls').style.display = 'block';
+                if(!this.scene) this.init3D();
+                this.loop();
             },
 
-            animate() {
-                requestAnimationFrame(() => this.animate());
-                
-                // Простий рух ботів
+            loop() {
+                requestAnimationFrame(() => this.loop());
                 this.bots.forEach(b => {
-                    b.obj.position.x += Math.cos(b.dir) * 0.03;
-                    b.obj.position.z += Math.sin(b.dir) * 0.03;
-                    if(Math.abs(b.obj.position.x) > 20) b.dir += Math.PI;
+                    b.obj.lookAt(this.camera.position.x, 0.7, this.camera.position.z);
+                    b.obj.position.z += 0.01; // Боти йдуть на тебе
                 });
-
                 this.renderer.render(this.scene, this.camera);
             }
         };
 
-        // Обробка стрільби
-        document.getElementById('btn-fire').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            // Візуальний ефект пострілу
-            document.getElementById('crosshair').style.borderColor = 'red';
-            setTimeout(() => document.getElementById('crosshair').style.borderColor = '#0f0', 100);
-        });
-
-        // Огляд пальцем (права частина екрану)
-        let lastTouchX = 0;
-        window.addEventListener('touchmove', (e) => {
-            let touch = e.touches[0];
-            if(touch.clientX > window.innerWidth / 2) {
-                let movementX = touch.clientX - lastTouchX;
-                if(app.camera) app.camera.rotation.y -= movementX * 0.005;
+        // КЕРУВАННЯ (MOBILE)
+        let isFiring = false;
+        document.getElementById('fire-trigger').ontouchstart = () => {
+            const ray = new THREE.Raycaster();
+            const center = new THREE.Vector2(0, 0);
+            ray.setFromCamera(center, game.camera);
+            
+            const hits = ray.intersectObjects(game.bots.map(b => b.obj), true);
+            if(hits.length > 0) {
+                const feed = document.getElementById('kill-feed');
+                feed.innerHTML = `<div>${game.state.name} ➔ BOT</div>` + feed.innerHTML;
+                game.state.money += 300;
+                game.updateUI();
             }
-            lastTouchX = touch.clientX;
-        });
+        };
+
+        // Огляд (Look)
+        let lastTouch = null;
+        document.getElementById('touch-look').ontouchmove = (e) => {
+            const t = e.touches[0];
+            if(lastTouch) {
+                game.camera.rotation.y -= (t.clientX - lastTouch.clientX) * 0.005;
+            }
+            lastTouch = t;
+        };
+        document.getElementById('touch-look').ontouchend = () => lastTouch = null;
     </script>
 </body>
 </html>
